@@ -9,40 +9,58 @@ import time
 # ==========================================
 # 1. KONFIGURASI TEMA "DARK GOLD PREMIUM"
 # ==========================================
-st.set_page_config(page_title="BizInvest Pro v5.0", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="BizInvest Pro v6.0", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
     <style>
-    /* Sembunyikan elemen Streamlit bawaan */
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
-    
-    /* Background Premium */
     .stApp { background-color: #0b0f19; color: #ffffff; }
     
-    /* Desain Tombol Utama (Emas/Biru Tua) */
     .stButton>button {
         width: 100%; border-radius: 12px;
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        color: #fbbf24; /* Warna Emas */
-        font-weight: 800; font-size: 16px; border: 1px solid #d97706;
-        padding: 0.8rem; transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(217, 119, 6, 0.2);
+        color: #fbbf24; font-weight: 800; font-size: 16px; border: 1px solid #d97706;
+        padding: 0.8rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.2);
     }
     .stButton>button:hover {
         transform: translateY(-3px); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
         background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: white;
     }
     
-    /* Kartu Metrik */
     div[data-testid="metric-container"] {
         background: #1f2937; border-radius: 12px; padding: 15px;
         border-left: 4px solid #fbbf24; box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    }
+    
+    /* Notifikasi AI untuk Awam */
+    .ai-box {
+        background: rgba(217, 119, 6, 0.1); border: 1px solid #fbbf24;
+        border-radius: 10px; padding: 20px; margin-bottom: 20px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. STATE NAVIGASI & LOGIN
+# 2. DATABASE SAHAM LENGKAP (AUTOCOMPLETE)
+# ==========================================
+DATABASE_SAHAM = [
+    # Saham Bank & Keuangan (BEI)
+    "BBCA.JK - Bank Central Asia", "BBRI.JK - Bank Rakyat Indonesia", "BMRI.JK - Bank Mandiri", "BBNI.JK - Bank Negara Indonesia", "BRIS.JK - Bank Syariah Indonesia", "ARTO.JK - Bank Jago",
+    # Saham Konsumsi & Retail (BEI)
+    "ICBP.JK - Indofood CBP", "INDF.JK - Indofood Sukses Makmur", "UNVR.JK - Unilever Indonesia", "AMRT.JK - Alfamart", "CPIN.JK - Charoen Pokphand", "MYOR.JK - Mayora", "MAPI.JK - Mitra Adiperkasa",
+    # Saham Energi, Tambang & Komoditas (BEI)
+    "ADRO.JK - Adaro Energy", "PTBA.JK - Bukit Asam", "ITMG.JK - Indo Tambangraya", "ANTM.JK - Aneka Tambang", "INCO.JK - Vale Indonesia", "AMMN.JK - Amman Mineral", "BUMI.JK - Bumi Resources", "PGAS.JK - Perusahaan Gas Negara",
+    # Saham Infrastruktur & Teknologi (BEI)
+    "TLKM.JK - Telkom Indonesia", "GOTO.JK - GoTo Gojek Tokopedia", "ASII.JK - Astra International", "BREN.JK - Barito Renewables", "CUAN.JK - Petrindo Jaya Kreasi",
+    # Saham Properti (BEI)
+    "LPKR.JK - Lippo Karawaci", "BSDE.JK - Bumi Serpong Damai", "CTRA.JK - Ciputra Development",
+    # Global & Crypto
+    "AAPL - Apple Inc (US)", "TSLA - Tesla Inc (US)", "NVDA - NVIDIA (US)", "MSFT - Microsoft (US)",
+    "BTC-USD - Bitcoin", "ETH-USD - Ethereum", "SOL-USD - Solana"
+]
+
+# ==========================================
+# 3. STATE NAVIGASI & LOGIN
 # ==========================================
 if 'page' not in st.session_state: st.session_state['page'] = 'home'
 def navigate(page_name): st.session_state['page'] = page_name
@@ -62,74 +80,122 @@ def check_password():
     return st.session_state["password_correct"]
 
 # ==========================================
-# 3. KECERDASAN BUATAN (AI ADVISOR ENGINE)
-# ==========================================
-def generate_ai_report(ticker, df, info):
-    """Menghasilkan laporan naratif AI layaknya analis profesional"""
-    rsi = df['RSI_14'].iloc[-1]
-    macd = df['MACD_12_26_9'].iloc[-1]
-    signal = df['MACDs_12_26_9'].iloc[-1]
-    beta = info.get('beta', 1.0)
-    
-    laporan = f"**Laporan AI untuk {ticker}:**\n\n"
-    laporan += "Berdasarkan pemindaian algoritma kami, "
-    
-    if rsi > 70: laporan += "aset ini saat ini menunjukkan tanda-tanda **Jenuh Beli (Overbought)**. Banyak investor yang telah meraup keuntungan, sehingga risiko koreksi atau penurunan harga dalam jangka pendek sangat tinggi. "
-    elif rsi < 30: laporan += "aset ini berada di area **Jenuh Jual (Oversold)**. Ini menandakan kepanikan pasar berlebihan, dan sering kali menjadi area *support* kuat untuk memantul naik. "
-    else: laporan += "pergerakan harga saat ini berada di area netral. "
-    
-    if macd > signal: laporan += "Tren momentum MACD mengonfirmasi adanya **akumulasi positif**, mendukung pergerakan harga ke atas.\n\n"
-    else: laporan += "Indikator MACD menunjukkan tekanan jual masih mendominasi.\n\n"
-    
-    laporan += f"**Profil Risiko:** Beta perusahaan tercatat di angka {beta:.2f}. "
-    if beta > 1.2: laporan += "Ini berarti aset ini lebih bergejolak dibanding rata-rata pasar. Anda bisa mendapat untung besar dengan cepat, tapi risikonya pun sangat tinggi."
-    elif beta < 0.8: laporan += "Ini adalah aset defensif yang pergerakannya lambat namun stabil. Sangat cocok untuk mengamankan nilai uang dari inflasi."
-    else: laporan += "Risiko pergerakan harga berada pada level moderat dan wajar."
-    
-    return laporan
-
-# ==========================================
-# 4. MODUL AI TRADING
+# 4. MODUL AI TRADING (KHUSUS AWAM & PRO)
 # ==========================================
 def menu_trading():
     col_bck, col_title = st.columns([1, 5])
     with col_bck: st.button("⬅️ KEMBALI", on_click=navigate, args=('home',))
-    with col_title: st.markdown("<h2 style='color: #fbbf24; margin-top:-10px;'>📊 AI Trading & Analisis Investasi</h2>", unsafe_allow_html=True)
+    with col_title: st.markdown("<h2 style='color: #fbbf24; margin-top:-10px;'>📊 Analisis Investasi & Sinyal Pintar</h2>", unsafe_allow_html=True)
     st.markdown("---")
     
-    c1, c2, c3 = st.columns([2, 1, 1])
-    with c1: ticker_symbol = st.text_input("Masukkan Kode Emiten (Contoh: BBCA.JK, AAPL, BTC-USD)", "BBCA.JK").upper()
-    with c2: timeframe = st.selectbox("Rentang Data", ["3mo", "6mo", "1y", "2y"], index=2)
-    with c3:
-        st.markdown("<br>", unsafe_allow_html=True)
-        analyze_btn = st.button("Pindai Perusahaan")
+    # Kotak Pencarian Pintar
+    pilihan_saham = st.selectbox(
+        "🔍 Ketik Nama Perusahaan atau Kode Saham (Contoh: ketik 'Bank' atau 'C'):",
+        options=["➕ Pilih atau Ketik Nama Saham..."] + DATABASE_SAHAM + ["✍️ Input Manual Kode Lainnya..."],
+        index=0
+    )
+    
+    if pilihan_saham == "✍️ Input Manual Kode Lainnya...":
+        ticker_symbol = st.text_input("Masukkan Kode Emiten Resmi (Contoh: BRPT.JK)", "").upper()
+    elif pilihan_saham != "➕ Pilih atau Ketik Nama Saham...":
+        ticker_symbol = pilihan_saham.split(" - ")[0]
+    else:
+        ticker_symbol = None
 
-    if analyze_btn and ticker_symbol:
-        with st.spinner("Mengaktifkan Neural Network & Mengunduh Data Bursa..."):
+    if st.button("🚀 Pindai Kondisi Perusahaan") and ticker_symbol:
+        with st.spinner(f"AI sedang memeriksa kesehatan keuangan dan riwayat harga {ticker_symbol}..."):
             try:
                 data_raw = yf.Ticker(ticker_symbol)
-                df = data_raw.history(period=timeframe)
+                df = data_raw.history(period="1y")
                 info = data_raw.info
                 
                 if df.empty:
-                    st.error("Data tidak ditemukan.")
+                    st.error("Data tidak ditemukan. Pastikan kode benar.")
                     return
                 
-                # Kalkulasi Teknikal
                 df.ta.macd(append=True)
                 df.ta.rsi(length=14, append=True)
                 df.ta.ema(length=20, append=True)
                 df.ta.ema(length=50, append=True)
 
-                tab1, tab2, tab3 = st.tabs(["📈 Terminal Grafik", "🧠 AI Advisor (Saran Pintar)", "🏢 Fundamental Bisnis"])
+                tab1, tab2, tab3 = st.tabs(["👶 Mode Pemula (Gampang Dipahami)", "📈 Mode Profesional", "🏢 Info Bisnis"])
                 
                 with tab1:
-                    st.markdown("### Grafik Pergerakan Harga")
-                    m1, m2, m3 = st.columns(3)
-                    m1.metric("Harga Saat Ini", f"{df['Close'].iloc[-1]:,.2f}")
-                    m2.metric("RSI (Volatilitas)", f"{df['RSI_14'].iloc[-1]:.2f}")
-                    m3.metric("Volume Trading", f"{df['Volume'].iloc[-1]:,.0f}")
+                    st.markdown("### 💡 Panduan Cerdas untuk Anda")
+                    last_price = df['Close'].iloc[-1]
+                    rsi = df['RSI_14'].iloc[-1]
+                    beta = info.get('beta', 1.0)
+                    
+                    # Logika Penentu Beli/Jual (Skala 0-100)
+                    # Semakin kecil RSI (oversold), semakin bagus untuk beli (skor mendekati 100)
+                    skor_beli = 100 - rsi
+                    
+                    col_gauge1, col_gauge2 = st.columns(2)
+                    
+                    # Spidometer Sinyal Beli
+                    with col_gauge1:
+                        fig_gauge1 = go.Figure(go.Indicator(
+                            mode = "gauge+number",
+                            value = skor_beli,
+                            title = {'text': "Waktu yang Tepat untuk Beli?", 'font': {'size': 20, 'color': 'white'}},
+                            gauge = {
+                                'axis': {'range': [0, 100]},
+                                'bar': {'color': "white"},
+                                'steps': [
+                                    {'range': [0, 30], 'color': "#ef4444"}, # Merah (Jangan beli)
+                                    {'range': [30, 70], 'color': "#f59e0b"}, # Kuning (Cicil)
+                                    {'range': [70, 100], 'color': "#10b981"} # Hijau (Bagus untuk beli)
+                                ]
+                            }
+                        ))
+                        fig_gauge1.update_layout(height=300, paper_bgcolor="rgba(0,0,0,0)", font={'color': "white"})
+                        st.plotly_chart(fig_gauge1, use_container_width=True)
+                        
+                    # Spidometer Risiko
+                    with col_gauge2:
+                        risiko_val = min(beta * 50, 100) # Normalisasi nilai beta ke 1-100
+                        fig_gauge2 = go.Figure(go.Indicator(
+                            mode = "gauge+number",
+                            value = risiko_val,
+                            title = {'text': "Tingkat Risiko (Goncangan Harga)", 'font': {'size': 20, 'color': 'white'}},
+                            gauge = {
+                                'axis': {'range': [0, 100]},
+                                'bar': {'color': "white"},
+                                'steps': [
+                                    {'range': [0, 40], 'color': "#10b981"}, # Hijau (Aman)
+                                    {'range': [40, 70], 'color': "#f59e0b"}, # Kuning (Sedang)
+                                    {'range': [70, 100], 'color': "#ef4444"} # Merah (Bahaya)
+                                ]
+                            }
+                        ))
+                        fig_gauge2.update_layout(height=300, paper_bgcolor="rgba(0,0,0,0)", font={'color': "white"})
+                        st.plotly_chart(fig_gauge2, use_container_width=True)
 
+                    # Penjelasan Bahasa Manusia Biasa
+                    st.markdown("<div class='ai-box'>", unsafe_allow_html=True)
+                    st.markdown(f"#### 🤖 Kesimpulan AI untuk {info.get('shortName', ticker_symbol)}:")
+                    st.write(f"Harga satu lembar saat ini adalah **Rp {last_price:,.0f}**.")
+                    
+                    # Penjelasan Momentum Beli
+                    if skor_beli >= 70:
+                        st.success("🎯 **Kapan Harus Beli? SEKARANG (Waktu Sangat Bagus).** \nHarga saham ini sedang 'Diskon' atau turun cukup dalam akibat kepanikan pasar. Ini adalah waktu yang direkomendasikan untuk mulai membeli dan menyimpannya.")
+                    elif skor_beli <= 30:
+                        st.error("🛑 **Kapan Harus Beli? JANGAN SEKARANG (Sedang Kemahalan).** \nSaham ini sedang naik daun dan harganya sangat mahal. Banyak orang yang sudah untung besar dan bersiap menjualnya. Jika Anda beli sekarang, Anda berisiko 'nyangkut' di harga atas. Lebih baik tunggu harga turun.")
+                    else:
+                        st.warning("⚖️ **Kapan Harus Beli? BOLEH DICICIL.** \nHarga saat ini berada di nilai normal/tengah-tengah. Jika Anda ingin berinvestasi, belilah sedikit demi sedikit (rutin setiap bulan), jangan masukkan semua uang Anda sekaligus.")
+                        
+                    # Penjelasan Risiko
+                    st.markdown("---")
+                    if beta < 0.8:
+                        st.write("🛡️ **Seberapa Besar Risikonya? RENDAH.** \nPerusahaan ini pergerakan harganya lambat tapi pasti. Sangat aman untuk pemula, orang tua, atau untuk dana pensiun. Anda bisa tidur nyenyak memegang saham ini.")
+                    elif beta > 1.2:
+                        st.write("🎢 **Seberapa Besar Risikonya? TINGGI.** \nHarga saham ini bisa naik 10% hari ini dan anjlok 10% besok. Sangat bergejolak! **Hanya gunakan 'Uang Dingin'** (uang yang tidak akan Anda pakai dalam 1 tahun ke depan) jika ingin membeli saham ini.")
+                    else:
+                        st.write("🚶‍♂️ **Seberapa Besar Risikonya? MENENGAH.** \nRisikonya standar seperti bisnis pada umumnya. Naik turunnya wajar.")
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                with tab2: # MODE PROFESIONAL (Untuk yang sudah paham chart)
+                    st.markdown("### Terminal Grafik Teknikal")
                     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_width=[0.2, 0.8])
                     fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name='Harga'), row=1, col=1)
                     fig.add_trace(go.Scatter(x=df.index, y=df['EMA_20'], line=dict(color='#fbbf24', width=1.5), name='EMA 20'), row=1, col=1)
@@ -138,30 +204,20 @@ def menu_trading():
                     fig.update_layout(template='plotly_dark', height=550, xaxis_rangeslider_visible=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
                     st.plotly_chart(fig, use_container_width=True)
 
-                with tab2:
-                    st.markdown("### 🤖 Bantuan AI Advisor")
-                    with st.chat_message("assistant", avatar="🤖"):
-                        st.write("Halo! Saya asisten AI Anda. Membaca data pasar...")
-                        time.sleep(1) # Efek AI sedang berpikir
-                        laporan_ai = generate_ai_report(ticker_symbol, df, info)
-                        st.write(laporan_ai)
-                        
-                    st.info("💡 **Tips AI:** Jangan pernah menggunakan 100% modal Anda pada satu waktu. Selalu gunakan strategi Cicil (DCA - Dollar Cost Averaging).")
-
-                with tab3:
-                    st.markdown("### Kesehatan Perusahaan")
+                with tab3: # PROFIL BISNIS
+                    st.markdown("### Apa yang Perusahaan ini Lakukan?")
+                    st.write(info.get('longBusinessSummary', 'Deskripsi tidak tersedia.'))
+                    st.markdown("---")
                     col_f1, col_f2 = st.columns(2)
                     with col_f1:
-                        st.write(f"**Nama Bisnis:** {info.get('longName', ticker_symbol)}")
-                        st.write(f"**Sektor:** {info.get('sector', 'N/A')}")
-                        st.write(f"**Margin Laba (Profit):** {info.get('profitMargins', 0)*100:.2f}%")
+                        st.write(f"**Industri:** {info.get('industry', 'N/A')}")
+                        st.write(f"**Karyawan:** {info.get('fullTimeEmployees', 'N/A')} orang")
                     with col_f2:
-                        st.write(f"**Rekomendasi Analis Global:** {info.get('recommendationKey', 'N/A').upper()}")
-                        st.write(f"**Target Harga Masa Depan:** {info.get('targetMeanPrice', 'N/A')}")
-                        st.write(f"**Dominasi Institusi:** {info.get('heldPercentInstitutions', 0)*100:.2f}%")
+                        st.write(f"**Keuntungan Bersih Perusahaan (Profit Margin):** {info.get('profitMargins', 0)*100:.2f}%")
+                        st.write(f"*(Jika persentase keuntungan ini minus, berarti perusahaan sedang rugi/bakar uang)*")
 
             except Exception as e:
-                st.error(f"Gagal memproses data: {e}")
+                st.error(f"Gagal memproses data. Terjadi kesalahan koneksi ke bursa saham.")
 
 # ==========================================
 # 5. MODUL KALKULATOR HPP
@@ -193,15 +249,6 @@ def menu_hpp():
         c1.metric("Modal per Unit (HPP)", f"Rp {hpp:,.0f}")
         c2.metric("Saran Harga Jual", f"Rp {jual:,.0f}")
         c3.metric("Potensi Laba/Unit", f"Rp {laba_satuan:,.0f}")
-        
-        st.markdown("---")
-        st.markdown("### 🤖 Saran Bisnis AI")
-        if margin > 50:
-            st.warning("⚠️ **Peringatan AI:** Margin di atas 50% sangat tinggi. Pastikan produkmu memiliki kualitas Premium atau *branding* yang kuat agar konsumen tidak merasa kemahalan.")
-        elif margin < 15:
-            st.error("⚠️ **Peringatan AI:** Margin terlalu tipis! Kamu rentan rugi jika ada kenaikan harga bahan baku yang mendadak. Coba tekan biaya operasional.")
-        else:
-            st.success("✅ **Saran AI:** Margin sangat ideal dan kompetitif untuk pasar umum. Lanjutkan strategi penjualanmu!")
 
 # ==========================================
 # 6. HALAMAN UTAMA (LANDING PAGE)
@@ -209,15 +256,16 @@ def menu_hpp():
 if check_password():
     if st.session_state['page'] == 'home':
         st.markdown("<div style='text-align: center; margin-top: 5vh;'>", unsafe_allow_html=True)
-        st.markdown("<h1 style='color: #fbbf24; font-size: 3rem;'>BIZINVEST PRO</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #9ca3af; font-size: 1.2rem; margin-bottom: 50px;'>Suite Analisis Finansial Terpadu dengan Kecerdasan Buatan</p>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: #fbbf24; font-size: 3rem;'>BIZINVEST PRO v6.0</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #9ca3af; font-size: 1.2rem; margin-bottom: 50px;'>Sahabat Investasi Pintar & Ramah Pemula</p>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            if st.button("📈 Masuk ke Terminal Investasi"): navigate('trading')
+            if st.button("📈 Cek Saham & Analisis Investasi"): navigate('trading')
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("📦 Masuk ke Kalkulator Bisnis"): navigate('hpp')
+            if st.button("📦 Kalkulator Bisnis & HPP"): navigate('hpp')
             
     elif st.session_state['page'] == 'trading': menu_trading()
     elif st.session_state['page'] == 'hpp': menu_hpp()
+                    
