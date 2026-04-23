@@ -40,7 +40,7 @@ def show_login_screen():
                 <p style="color: white; margin: 0; font-size: 14px;">
                     💡 <b>Panduan Pendaftaran:</b><br>
                     1. Jika belum memiliki License Key, silakan <a href="http://lynk.id/nore30/pv6kkekzp1j0/checkout" style="color: #fbbf24; font-weight: bold; text-decoration: none;">ORDER KEY DI SINI</a>.<br>
-                    2. Jika sudah bayar tapi belum klaim kode, silakan <a href="https://script.google.com/macros/s/AKfycbztryd1YOJLuSiltboR5Lg7bwata41Gu7SrrIdnUMR-FdVlxlUMwVb4f5Udu7xzLUX-/exec" style="color: #fbbf24; font-weight: bold; text-decoration: none;">KLAIM KODE DI SINI</a>.
+                    2. Jika sudah bayar tapi belum klaim kode, silakan <a href="https://script.google.com/macros/s/AKfycbxsXMQj8Hcv4omEYCV7PJlXWPhlnIA_nzGOWMXPAaphG87KYhEBHs3XWyfHWpTkR5iW/exec" style="color: #fbbf24; font-weight: bold; text-decoration: none;">KLAIM KODE DI SINI</a>.
                 </p>
             </div>
             """, 
