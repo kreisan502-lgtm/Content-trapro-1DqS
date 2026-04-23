@@ -3,9 +3,8 @@ import time
 import datetime
 from security import verify_user, get_key_info
 
-# Tambahkan 'cookie_manager' di dalam kurung agar tidak error TypeError
 def show_login_screen(cookie_manager):
-    # CSS kustom untuk tombol Lupa Sandi kecil warna biru (Gambar 3)
+    # CSS kustom (Gambar 3)
     st.markdown("""
         <style>
             div.stButton > button#lupa_sandi {
@@ -18,14 +17,40 @@ def show_login_screen(cookie_manager):
 
     if 'auth_view' not in st.session_state: st.session_state.auth_view = "login_page"
     
+    # --- LAYAR RESET PASSWORD ---
+    if st.session_state.auth_view == "reset_page":
+        st.markdown("### 🛠️ Pemulihan Akun")
+        f_email = st.text_input("Email Pembelian", key="f_em")
+        f_key = st.text_input("License Key", key="f_ky")
+        
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("VERIFIKASI DATA", use_container_width=True):
+                info = get_key_info(f_key)
+                if info and str(info['email']).strip() == str(f_email).strip():
+                    st.session_state.can_reset = True
+                    st.success("Data diverifikasi!")
+                else: st.error("Data tidak cocok.")
+        with c2:
+            if st.button("KEMBALI", use_container_width=True):
+                st.session_state.auth_view = "login_page"; st.rerun()
+
+        if st.session_state.get('can_reset'):
+            new_p = st.text_input("Password Baru", type="password", key="new_p_res")
+            if st.button("UPDATE PASSWORD", use_container_width=True):
+                if verify_user(f_email, new_p, key=f_key, mode="signup") == "SUCCESS_SIGNUP":
+                    st.success("Sandi diperbarui!"); time.sleep(1)
+                    st.session_state.can_reset = False
+                    st.session_state.auth_view = "login_page"; st.rerun()
+        return
+
+    # --- TAB NORMAL ---
     t1, t2 = st.tabs(["🔐 LOGIN", "📝 DAFTAR"])
 
-    # --- TAB LOGIN (SESUAI GAMBAR 3) ---
     with t1:
         e_log = st.text_input("Email Pembelian", key="le")
         p_log = st.text_input("Password", type="password", key="lp")
         
-        # Tombol biru kecil (Gambar 3)
         if st.button("Lupa kata sandi?", key="lupa_sandi"):
             st.session_state.auth_view = "reset_page"
             st.rerun()
@@ -36,10 +61,10 @@ def show_login_screen(cookie_manager):
                 st.session_state.authenticated = True 
                 st.session_state.user_data = {"nama": res["nama"], "email": res["email"]}
                 
-                # Simpan ke Cookie
+                # SIMPAN KE COOKIE (Stay Logon)
                 expiry = datetime.date.today() + datetime.timedelta(days=30)
-                cookie_manager.set("vip_user_email", res["email"], expires_at=expiry)
-                cookie_manager.set("vip_user_nama", res["nama"], expires_at=expiry)
+                cookie_manager.set("vip_user_email", str(res["email"]), expires_at=expiry)
+                cookie_manager.set("vip_user_nama", str(res["nama"]), expires_at=expiry)
                 
                 st.success(f"Selamat datang, {res['nama']}!")
                 time.sleep(0.5)
@@ -47,9 +72,8 @@ def show_login_screen(cookie_manager):
             else:
                 st.error("Gagal Login. Periksa Email/Password.")
 
-    # --- TAB DAFTAR (SESUAI GAMBAR 2) ---
     with t2:
-        # Kotak Notifikasi Biru Muda (Gambar 2)
+        # Kotak Notifikasi Biru (Gambar 2)
         st.markdown("""
             <div style="background-color: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px; border: 1px solid #bee5eb; margin-bottom: 20px;">
                 <span style="font-size: 18px;">💡</span> <b>Panduan Pendaftaran:</b><br>
@@ -74,4 +98,3 @@ def show_login_screen(cookie_manager):
             if st.button("DAFTAR SEKARANG", use_container_width=True):
                 if verify_user(inf['email'], r_pass, key=st.session_state.rk_ok, mode="signup") == "SUCCESS_SIGNUP":
                     st.success("Registrasi Berhasil!"); st.balloons()
-                    
