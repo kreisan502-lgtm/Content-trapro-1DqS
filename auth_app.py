@@ -34,7 +34,7 @@ def show_login_screen():
             <div style="background-color: #1e3a8a; padding: 15px; border-radius: 10px; border-left: 5px solid #fbbf24; margin-bottom: 20px;">
                 <p style="color: white; margin: 0; font-weight: bold;">💡 Panduan Pendaftaran:</p>
                 <p style="color: white; margin: 5px 0; font-size: 0.9rem;">1. Jika belum memiliki License Key, silakan <a href="https://lynk.id/nore30" style="color: #fbbf24; font-weight: bold; text-decoration: none;">ORDER KEY DI SINI</a>.</p>
-                <p style="color: white; margin: 5px 0; font-size: 0.9rem;">2. Jika sudah bayar tapi belum klaim kode, silakan <a href="#" style="color: #fbbf24; font-weight: bold; text-decoration: none;">KLAIM KODE DI SINI</a>.</p>
+                <p style="color: white; margin: 5px 0; font-size: 0.9rem;">2. Jika sudah bayar tapi belum klaim kode, silakan <a href="https://script.google.com/macros/s/AKfycby0CzpBx5JCnUZNApcOqWCkZ0adGJkhPsbowmQX1fylV9fxQP2ETtWb-vZ6F3bnFpvF/exec" style="color: #fbbf24; font-weight: bold; text-decoration: none;">KLAIM KODE DI SINI</a>.</p>
             </div>
         """, unsafe_allow_html=True)
 
