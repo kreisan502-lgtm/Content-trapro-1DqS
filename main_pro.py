@@ -1,31 +1,37 @@
 import streamlit as st
-import datetime
 from auth_app import show_login_screen
+from extra_streamlit_components import CookieManager
+import datetime
 
-# --- 1. IMPORT MODUL (PASTIKAN TIDAK ADA # LAGI) ---
+# --- 1. IMPORT MODUL (DIBUKA) ---
 try:
     from investasi import show_investasi 
     from kalkulator import show_hpp
 except ImportError:
-    st.error("Error: File investasi.py atau kalkulator.py tidak ditemukan!")
+    def show_investasi(): st.error("File investasi.py tidak ditemukan.")
+    def show_hpp(): st.error("File kalkulator.py tidak ditemukan.")
 
-# --- 2. CONFIG (WAJIB PALING ATAS) ---
-st.set_page_config(
-    page_title="BizInvest VIP Suite", 
-    layout="wide", 
-    initial_sidebar_state="expanded"
-)
+# --- 2. CONFIG ---
+st.set_page_config(page_title="BizInvest VIP Suite", layout="wide")
 
-# --- 3. ANTI-REFRESH SYSTEM ---
-# Variabel ini menjaga agar saat refresh, data user tetap ada di memori server
+# --- 3. INISIALISASI COOKIE MANAGER ---
+cookie_manager = CookieManager()
+
+# --- 4. ANTI-REFRESH & COOKIE CHECK ---
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
-if 'user_data' not in st.session_state:
-    st.session_state.user_data = {"nama": "", "email": ""}
-if 'page' not in st.session_state:
+
+# Cek apakah ada cookie tersimpan
+saved_email = cookie_manager.get("vip_user_email")
+saved_nama = cookie_manager.get("vip_user_nama")
+
+# Jika ada cookie tapi session state kosong (habis refresh), pulihkan session
+if saved_email and not st.session_state.authenticated:
+    st.session_state.authenticated = True
+    st.session_state.user_data = {"nama": saved_nama, "email": saved_email}
     st.session_state.page = "dashboard"
 
-# --- 4. LOGIKA ROUTING UTAMA ---
+# --- 5. LOGIKA ROUTING ---
 if not st.session_state.authenticated:
     show_login_screen()
 else:
@@ -46,46 +52,31 @@ else:
         """, unsafe_allow_html=True)
 
         if st.sidebar.button("🏠 Dashboard Utama", use_container_width=True):
-            st.session_state.page = "dashboard"
-            st.rerun()
+            st.session_state.page = "dashboard"; st.rerun()
 
         st.write("---")
         if st.sidebar.button("🚪 Keluar Aplikasi", use_container_width=True):
+            # HAPUS COOKIE SAAT LOGOUT
+            cookie_manager.delete("vip_user_email")
+            cookie_manager.delete("vip_user_nama")
             st.session_state.authenticated = False
-            st.session_state.user_data = {"nama": "", "email": ""}
-            st.session_state.page = "dashboard"
             st.rerun()
 
-    # --- 5. NAVIGASI HALAMAN ---
-    if st.session_state.page == "dashboard":
+    # --- KONTEN HALAMAN ---
+    if st.session_state.get('page') == "dashboard":
         st.markdown("<h1 style='text-align: center; color: #fbbf24;'>👑 VIP TERMINAL</h1>", unsafe_allow_html=True)
-        st.write("---")
-        
         col1, col2 = st.columns(2)
         with col1:
-            with st.container(border=True):
-                st.subheader("📈 Terminal Analisis")
-                st.write("Analisis pergerakan aset & teknikal secara real-time.")
-                if st.button("BUKA TERMINAL 🚀", key="go_inv", use_container_width=True):
-                    st.session_state.page = "investasi"
-                    st.rerun()
-
+            if st.button("BUKA TERMINAL 🚀", use_container_width=True):
+                st.session_state.page = "investasi"; st.rerun()
         with col2:
-            with st.container(border=True):
-                st.subheader("🧮 Kalkulator Bisnis")
-                st.write("Hitung HPP, Margin Profit, dan Analisis Keuangan.")
-                if st.button("BUKA KALKULATOR 🛠️", key="go_hpp", use_container_width=True):
-                    st.session_state.page = "hpp"
-                    st.rerun()
+            if st.button("BUKA KALKULATOR 🛠️", use_container_width=True):
+                st.session_state.page = "hpp"; st.rerun()
 
     elif st.session_state.page == "investasi":
-        if st.button("⬅️ Kembali ke Menu Utama", key="back_inv"):
-            st.session_state.page = "dashboard"
-            st.rerun()
-        show_investasi() # AKTIF MEMANGGIL FILE INVESTASI.PY
-
+        if st.button("⬅️ Kembali"): st.session_state.page = "dashboard"; st.rerun()
+        show_investasi()
     elif st.session_state.page == "hpp":
-        if st.button("⬅️ Kembali ke Menu Utama", key="back_hpp"):
-            st.session_state.page = "dashboard"
-            st.rerun()
-        show_hpp() # AKTIF MEMANGGIL FILE KALKULATOR.PY
+        if st.button("⬅️ Kembali"): st.session_state.page = "dashboard"; st.rerun()
+        show_hpp()
+        
