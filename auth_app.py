@@ -45,17 +45,18 @@ def show_login_screen():
             st.session_state.auth_view = "reset_page"; st.rerun()
 
         if st.button("MASUK", use_container_width=True):
-            # PROSES LOGIN & SIMPAN NAMA
-            res = verify_user(e_log, p_log, mode="login")
-            if isinstance(res, dict) and res["status"] == "SUCCESS":
-                st.session_state.authenticated = True
-                st.session_state.user_data = {
-                    "nama": res["nama"],
-                    "email": res["email"]
-                }
-                st.success(f"Selamat datang, {res['nama']}!")
-                time.sleep(0.5)
-                st.rerun()
+    res = verify_user(e_log, p_log, mode="login")
+    if isinstance(res, dict) and res["status"] == "SUCCESS":
+        # DATA INI YANG MENJAGA STATUS LOGIN
+        st.session_state.authenticated = True 
+        st.session_state.user_data = {
+            "nama": res["nama"],
+            "email": res["email"]
+        }
+        st.success(f"Selamat datang!")
+        time.sleep(0.5)
+        st.rerun()
+
             else:
                 st.error("Gagal Login. Periksa Email/Password.")
 
