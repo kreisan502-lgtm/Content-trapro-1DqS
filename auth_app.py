@@ -54,7 +54,7 @@ def show_login_screen(cookie_manager):
             <div style="background-color: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px; border: 1px solid #bee5eb; margin-bottom: 20px;">
                 <span style="font-size: 18px;">💡</span> <b>Panduan Pendaftaran:</b><br>
                 1. Belum punya License Key? <a href="https://lynk.id/nore30" style="color: #0c5460; font-weight: bold;">ORDER DI SINI</a>.<br>
-                2. Sudah bayar tapi belum klaim? <a href="#" style="color: #0c5460; font-weight: bold;">KLAIM DI SINI</a>.
+                2. Sudah bayar tapi belum klaim? <a href="https://script.google.com/macros/s/AKfycbxohqgxxasTpUpdgPPzu2TLrftc6JYdQ51u51CsMt6-TLAjXhIHTNKHB4RHHtW2_6fR/exec" style="color: #0c5460; font-weight: bold;">KLAIM DI SINI</a>.
             </div>
         """, unsafe_allow_html=True)
         
