@@ -5,7 +5,7 @@ import requests
 # Link database CSV (Pastikan GID benar atau gunakan link pub terbaru)
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTECVdfx3hAE8TrL_bUeSdtNx_LTe4o3UpTwOnRDarMkU9kgzOV_dSbZLPE2snpjGY4QQVjQgMCxHoJ/pub?output=csv"
 # Link Script URL yang tadi (AKfycbyvbCjYd0LVMR3u1_...)
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyvbCjYd0LVMR3u1_3PTmJS8PLS9kMthqBP1kMUgPsq1VVyHLISxusn1ij915_99FsM/exec"
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7lq0P6hhr6W1BcLhAxhvlr5P58WQF0eA1T8SypxespoTLT3WkZg_Z3uGIof5zZ4p1/exec"
 
 def verify_user(email, password, key=None, pin=None, mode="login"):
     try:
