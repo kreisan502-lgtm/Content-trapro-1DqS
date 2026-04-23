@@ -8,7 +8,7 @@ import pandas_ta as ta
 # ==========================================
 # 1. KONFIGURASI TEMA "DARK GOLD PREMIUM"
 # ==========================================
-st.set_page_config(page_title="BizInvest Pro v8.0", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="BizInvest Pro v9.0", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
     <style>
@@ -41,19 +41,35 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. DATABASE SAHAM
+# 2. DATABASE SAHAM RAKSASA (AUTOCOMPLETE)
 # ==========================================
 DB_LOKAL = [
-    "BBCA.JK - PT Bank Central Asia Tbk", "BBRI.JK - PT Bank Rakyat Indonesia Tbk", 
-    "BMRI.JK - PT Bank Mandiri Tbk", "BBNI.JK - PT Bank Negara Indonesia Tbk", 
-    "TLKM.JK - PT Telkom Indonesia Tbk", "ASII.JK - PT Astra International Tbk", 
-    "GOTO.JK - PT GoTo Gojek Tokopedia Tbk", "ADRO.JK - PT Adaro Energy Indonesia Tbk", 
-    "PTBA.JK - PT Bukit Asam Tbk", "ANTM.JK - PT Aneka Tambang Tbk", 
-    "ICBP.JK - PT Indofood CBP Sukses Makmur Tbk", "UNVR.JK - PT Unilever Indonesia Tbk",
-    "AMMN.JK - PT Amman Mineral Internasional Tbk", "BUMI.JK - PT Bumi Resources Tbk"
+    # Perbankan & Keuangan
+    "BBCA.JK - PT Bank Central Asia Tbk", "BBRI.JK - PT Bank Rakyat Indonesia Tbk", "BMRI.JK - PT Bank Mandiri Tbk", "BBNI.JK - PT Bank Negara Indonesia Tbk", "BRIS.JK - PT Bank Syariah Indonesia Tbk", "ARTO.JK - PT Bank Jago Tbk", "BBTN.JK - PT Bank Tabungan Negara Tbk", "BDMN.JK - PT Bank Danamon Tbk", "BNGA.JK - PT Bank CIMB Niaga Tbk",
+    # Konsumer & Retail
+    "ICBP.JK - PT Indofood CBP Sukses Makmur Tbk", "INDF.JK - PT Indofood Sukses Makmur Tbk", "UNVR.JK - PT Unilever Indonesia Tbk", "MYOR.JK - PT Mayora Indah Tbk", "CPIN.JK - PT Charoen Pokphand Indonesia Tbk", "JPFA.JK - PT Japfa Comfeed Tbk", "AMRT.JK - PT Sumber Alfaria Trijaya Tbk (Alfamart)", "MIDI.JK - PT Midi Utama Indonesia Tbk (Alfamidi)", "MAPI.JK - PT Mitra Adiperkasa Tbk", "LPPF.JK - PT Matahari Department Store Tbk", "KLBF.JK - PT Kalbe Farma Tbk", "SIDO.JK - PT Industri Jamu dan Farmasi Sido Muncul Tbk",
+    # Energi, Tambang, & Komoditas
+    "ADRO.JK - PT Adaro Energy Indonesia Tbk", "PTBA.JK - PT Bukit Asam Tbk", "ITMG.JK - PT Indo Tambangraya Megah Tbk", "HRUM.JK - PT Harum Energy Tbk", "BUMI.JK - PT Bumi Resources Tbk", "ANTM.JK - PT Aneka Tambang Tbk", "INCO.JK - PT Vale Indonesia Tbk", "MDKA.JK - PT Merdeka Copper Gold Tbk", "AMMN.JK - PT Amman Mineral Internasional Tbk", "PGAS.JK - PT Perusahaan Gas Negara Tbk", "MEDC.JK - PT Medco Energi Internasional Tbk", "AKRA.JK - PT AKR Corporindo Tbk",
+    # Infrastruktur, Industri & Teknologi
+    "TLKM.JK - PT Telkom Indonesia Tbk", "GOTO.JK - PT GoTo Gojek Tokopedia Tbk", "BUKA.JK - PT Bukalapak.com Tbk", "MTEL.JK - PT Dayamitra Telekomunikasi Tbk", "ASII.JK - PT Astra International Tbk", "UNTR.JK - PT United Tractors Tbk", "BRPT.JK - PT Barito Pacific Tbk", "TPIA.JK - PT Chandra Asri Petrochemical Tbk", "BREN.JK - PT Barito Renewables Energy Tbk", "CUAN.JK - PT Petrindo Jaya Kreasi Tbk", "JSMR.JK - PT Jasa Marga Tbk",
+    # Properti & Konstruksi
+    "BSDE.JK - PT Bumi Serpong Damai Tbk", "CTRA.JK - PT Ciputra Development Tbk", "PWON.JK - PT Pakuwon Jati Tbk", "SMRA.JK - PT Summarecon Agung Tbk", "LPKR.JK - PT Lippo Karawaci Tbk", "PTPP.JK - PT PP (Persero) Tbk", "WIKA.JK - PT Wijaya Karya Tbk", "ADHI.JK - PT Adhi Karya Tbk"
 ]
-DB_GLOBAL = ["AAPL - Apple Inc.", "MSFT - Microsoft", "TSLA - Tesla, Inc.", "NVDA - NVIDIA", "GOOGL - Alphabet (Google)"]
-DB_KRIPTO = ["BTC-USD - Bitcoin", "ETH-USD - Ethereum", "SOL-USD - Solana", "DOGE-USD - Dogecoin"]
+
+DB_GLOBAL = [
+    # Top Tech (Magnificent Seven & Lainnya)
+    "AAPL - Apple Inc.", "MSFT - Microsoft Corp.", "NVDA - NVIDIA Corp.", "TSLA - Tesla Inc.", "GOOGL - Alphabet Inc. (Google)", "AMZN - Amazon.com Inc.", "META - Meta Platforms Inc. (Facebook/IG)", "NFLX - Netflix Inc.", "ADBE - Adobe Inc.", "CRM - Salesforce Inc.", "AMD - Advanced Micro Devices", "INTC - Intel Corp.", "CSCO - Cisco Systems", "ORCL - Oracle Corp.",
+    # Finansial & Pembayaran
+    "V - Visa Inc.", "MA - Mastercard Inc.", "PYPL - PayPal Holdings", "JPM - JPMorgan Chase", "BAC - Bank of America", "WFC - Wells Fargo", "BRK-B - Berkshire Hathaway (Warren Buffett)",
+    # Konsumsi & Retail AS
+    "WMT - Walmart Inc.", "TGT - Target Corp.", "COST - Costco Wholesale", "KO - The Coca-Cola Co.", "PEP - PepsiCo Inc.", "MCD - McDonald's Corp.", "SBUX - Starbucks Corp.", "NKE - NIKE Inc.", "PG - Procter & Gamble", "JNJ - Johnson & Johnson",
+    # Otomotif, Hiburan & Lainnya
+    "F - Ford Motor Co.", "GM - General Motors", "DIS - The Walt Disney Co.", "BA - Boeing Co.", "XOM - Exxon Mobil", "CVX - Chevron Corp."
+]
+
+DB_KRIPTO = [
+    "BTC-USD - Bitcoin", "ETH-USD - Ethereum", "USDT-USD - Tether", "BNB-USD - Binance Coin", "SOL-USD - Solana", "XRP-USD - Ripple", "USDC-USD - USD Coin", "ADA-USD - Cardano", "AVAX-USD - Avalanche", "DOGE-USD - Dogecoin", "DOT-USD - Polkadot", "LINK-USD - Chainlink", "TRX-USD - TRON", "MATIC-USD - Polygon", "SHIB-USD - Shiba Inu", "LTC-USD - Litecoin", "BCH-USD - Bitcoin Cash", "UNI-USD - Uniswap", "ATOM-USD - Cosmos"
+]
 
 # ==========================================
 # 3. STATE NAVIGASI & LOGIN
@@ -66,7 +82,7 @@ def check_password():
         st.markdown("<h2 style='text-align: center; color: #fbbf24; margin-top: 10vh;'>👑 Akses VIP BizInvest Pro</h2>", unsafe_allow_html=True)
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.text_input("Masukkan Lisensi:", type="password", key="pwd_input")
+            st.text_input("Masukkan Lisensi / Password:", type="password", key="pwd_input")
             if st.button("Masuk"):
                 if st.session_state.pwd_input == "AksesPremium123":
                     st.session_state["password_correct"] = True
@@ -90,32 +106,32 @@ def generate_ai_insight(info, rsi, nama_aset):
     insight += "🎯 **Apakah Harga Saham Ini Sedang Murah atau Mahal?**\n"
     if pe_ratio > 0:
         if pe_ratio < 15 and pbv_ratio < 1.5:
-            insight += f"Aset ini sedang **SANGAT MURAH (Undervalued)**. Harga pasar saat ini lebih rendah dari nilai asli perusahaannya (PBV: {pbv_ratio:.2f}x). Ini adalah kesempatan langka seperti membeli barang bermerek dengan harga diskon.\n\n"
+            insight += f"Aset ini sedang **SANGAT MURAH (Undervalued)**. Harga pasar saat ini lebih rendah dari nilai asli perusahaannya. Ibaratnya, Anda membeli barang bermerek dengan harga diskon cuci gudang.\n\n"
         elif pe_ratio > 30 or pbv_ratio > 4:
-            insight += f"Hati-hati, aset ini dinilai **KEMAHALAN (Overvalued)**. Investor berani membayar sangat tinggi (PBV: {pbv_ratio:.2f}x) karena harapan masa depan, tapi risikonya sangat besar jika kinerja menurun.\n\n"
+            insight += f"Hati-hati, aset ini dinilai **KEMAHALAN (Overvalued)**. Investor berani membayar sangat tinggi karena harapan masa depan, tapi risikonya sangat besar jika kinerja perusahaan tiba-tiba menurun.\n\n"
         else:
             insight += f"Harga saham ini **WAJAR (Fair Value)**. Harganya sepadan dengan keuntungan yang dihasilkan perusahaan saat ini.\n\n"
     else:
-        insight += "Aset ini sulit dinilai secara tradisional (mungkin Kripto atau perusahaan yang sedang merugi).\n\n"
+        insight += "Aset ini bergerak sangat liar dan sulit dinilai menggunakan rumus tradisional (kemungkinan ini adalah Kripto atau perusahaan teknologi yang sedang membakar uang).\n\n"
 
     # Analisis Momentum (Teknikal)
     insight += "📊 **Bagaimana Momentum Jual-Belinya Saat Ini?**\n"
     if rsi < 35:
-        insight += "Saat ini banyak investor yang sedang panik menjual saham ini. Namun kabar baiknya, harga sudah **Sangat Jatuh (Jenuh Jual)**, membuatnya sangat menarik untuk dibeli karena potensi naiknya lebih besar daripada turunnya.\n\n"
+        insight += "Saat ini banyak orang yang sedang panik menjual. Namun kabar baiknya, harga sudah **Sangat Jatuh (Jenuh Jual)**. Ini sering menjadi titik pantul naik, membuatnya sangat menarik untuk mulai dicicil beli.\n\n"
     elif rsi > 65:
-        insight += "Saham ini sedang *FOMO* (banyak yang berebut beli). Harga sudah **Berada di Pucuk (Jenuh Beli)**. Sangat tidak disarankan membeli sekarang, lebih baik tunggu harga turun (koreksi).\n\n"
+        insight += "Aset ini sedang *Viral* (banyak yang berebut beli). Harga sudah **Berada di Pucuk (Jenuh Beli)**. Sangat tidak disarankan membeli sekarang, lebih baik tunggu harga turun (diskon) terlebih dahulu.\n\n"
     else:
-        insight += "Pergerakan harga sedang stabil dan normal. Tidak ada kepanikan atau euforia berlebihan.\n\n"
+        insight += "Pergerakan harga sedang stabil dan normal. Tidak ada kepanikan atau euforia berlebihan dari para trader.\n\n"
         
     # Analisis Kinerja Bisnis
     insight += "🏢 **Bagaimana Kesehatan Bisnisnya?**\n"
     if profit_margin > 15:
-        insight += f"Bisnis ini **SANGAT MENGUNTUNGKAN**. Mereka bisa menyimpan {profit_margin:.1f}% dari pemasukannya sebagai laba bersih. Perusahaan yang kaya raya! "
+        insight += f"Bisnis ini **SANGAT MENGUNTUNGKAN**. Mereka berhasil menyimpan {profit_margin:.1f}% dari pemasukannya sebagai laba bersih murni. Perusahaan yang sangat sehat secara finansial! "
     elif profit_margin < 0:
-        insight += "Perusahaan ini sedang **MERUGI/BAKAR UANG**. Mereka lebih banyak mengeluarkan biaya daripada pemasukan. Sangat berisiko! "
+        insight += "Waspada! Perusahaan ini sedang **MERUGI/BAKAR UANG**. Mereka lebih banyak mengeluarkan biaya operasional daripada pemasukan yang didapat. "
         
     if div_yield > 3:
-        insight += f"Selain itu, perusahaan ini sangat dermawan. Mereka membagikan dividen (bonus tahunan) sebesar **{div_yield:.1f}%** per tahun langsung ke rekening Anda hanya dengan menyimpan sahamnya."
+        insight += f"Kabar luar biasa lainnya: Perusahaan ini sangat dermawan. Mereka membagikan dividen (bonus uang tunai) rutin sekitar **{div_yield:.1f}%** per tahun langsung ke rekening Anda hanya dengan menyimpan sahamnya tanpa perlu Anda apa-apakan."
         
     return insight
 
@@ -140,33 +156,35 @@ def menu_trading():
         options_list = DB_KRIPTO
         mata_uang = "$"
 
-    pilihan_saham = st.selectbox("🔍 Cari Nama Perusahaan atau Kode:", options=["➕ Pilih/Ketik di sini..."] + options_list + ["✍️ Input Manual Ticker..."])
+    st.markdown("<p style='color:gray; font-size:14px;'><i>Ketik huruf awal (misal: 'Bank' atau 'Telkom') agar AI memunculkan daftarnya otomatis. Jika nama perusahaan tidak ada di daftar ini, Anda tetap bisa mengeceknya dengan memilih opsi 'Input Manual Ticker' paling bawah.</i></p>", unsafe_allow_html=True)
     
-    if pilihan_saham == "✍️ Input Manual Ticker...":
-        ticker_symbol = st.text_input("Ketik Kode Resmi", "").upper()
-    elif pilihan_saham != "➕ Pilih/Ketik di sini...":
+    pilihan_saham = st.selectbox("🔍 Cari Nama Perusahaan / Aset:", options=["➕ Pilih / Ketik di sini..."] + options_list + ["✍️ Input Manual Ticker Global (Untuk saham yang tidak ada di daftar)..."])
+    
+    if pilihan_saham == "✍️ Input Manual Ticker Global (Untuk saham yang tidak ada di daftar)...":
+        ticker_symbol = st.text_input("Ketik Kode Resmi Global (Contoh: BRPT.JK, TSLA, BTC-USD)", "").upper()
+    elif pilihan_saham != "➕ Pilih / Ketik di sini...":
         ticker_symbol = pilihan_saham.split(" - ")[0]
     else: ticker_symbol = None
 
-    if st.button("🚀 Analisis Mendalam") and ticker_symbol:
-        with st.spinner(f"AI sedang menarik data rahasia pasar untuk {ticker_symbol}..."):
+    if st.button("🚀 Pindai dengan AI & Analisis Mendalam") and ticker_symbol:
+        with st.spinner(f"AI sedang menarik data rahasia pasar dari server global untuk {ticker_symbol}..."):
             try:
                 data_raw = yf.Ticker(ticker_symbol)
                 df = data_raw.history(period="1y")
                 info = data_raw.info
                 
                 if df.empty:
-                    st.error("Data tidak ditemukan.")
+                    st.error("Data tidak ditemukan. Pastikan bursa sedang tidak libur panjang atau kode yang Anda ketik benar.")
                     return
                 
                 df.ta.macd(append=True)
                 df.ta.rsi(length=14, append=True)
                 df.ta.ema(length=20, append=True)
 
-                tab1, tab2, tab3, tab4 = st.tabs(["🤖 Laporan AI Khusus", "📋 Ringkasan & Harga Lot", "🏢 Fundamental & Valuasi Lengkap", "📈 Grafik Pro"])
+                tab1, tab2, tab3, tab4 = st.tabs(["🤖 Laporan AI Khusus Awam", "📋 Ringkasan & Harga Beli", "🏢 Fundamental (Kesehatan Bisnis)", "📈 Grafik Profesional"])
                 
                 with tab1:
-                    st.markdown(f"### 🤖 Laporan Rahasia AI untuk Anda")
+                    st.markdown(f"### 🤖 Laporan Bahasa Manusia oleh AI")
                     rsi = df['RSI_14'].iloc[-1]
                     nama_perusahaan = info.get('longName', ticker_symbol)
                     
@@ -177,73 +195,74 @@ def menu_trading():
                 with tab2:
                     last_price = df['Close'].iloc[-1]
                     st.markdown("<div class='info-box'>", unsafe_allow_html=True)
-                    st.markdown("#### 💰 Keputusan Harga Pembelian")
+                    st.markdown("#### 💰 Keputusan Harga Pembelian Terkini")
                     col_p1, col_p2 = st.columns(2)
                     with col_p1:
-                        if mata_uang == "Rp": st.metric("Harga 1 Lembar", f"Rp {last_price:,.0f}")
-                        else: st.metric("Harga 1 Unit", f"$ {last_price:,.2f}")
+                        if mata_uang == "Rp": st.metric("Harga 1 Lembar Saat Ini", f"Rp {last_price:,.0f}")
+                        else: st.metric("Harga 1 Unit Saat Ini", f"$ {last_price:,.2f}")
                     with col_p2:
                         if "Lokal" in jenis_pasar:
-                            st.metric("Harga 1 LOT (Minimal Beli)", f"Rp {last_price * 100:,.0f}")
+                            st.metric("Dana Disiapkan untuk 1 LOT (Wajib Minimal Beli)", f"Rp {last_price * 100:,.0f}")
                         else:
-                            st.metric("Sistem Pembelian", "Bisa Pecahan (Fraksional)")
+                            st.metric("Sistem Pembelian Aset", "Bisa Pecahan (Fraksional)")
                     st.markdown("</div>", unsafe_allow_html=True)
 
                     skor_beli = 100 - rsi
                     col_gauge1, col_gauge2 = st.columns(2)
                     with col_gauge1:
-                        fig_g1 = go.Figure(go.Indicator(mode = "gauge+number", value = skor_beli, title = {'text': "Waktu Tepat Beli?", 'font': {'color': 'white'}}, gauge = {'axis': {'range': [0, 100]}, 'steps': [{'range': [0, 30], 'color': "#ef4444"}, {'range': [30, 70], 'color': "#f59e0b"}, {'range': [70, 100], 'color': "#10b981"}]}))
+                        fig_g1 = go.Figure(go.Indicator(mode = "gauge+number", value = skor_beli, title = {'text': "Seberapa Bagus Waktu Belinya?", 'font': {'color': 'white', 'size':16}}, gauge = {'axis': {'range': [0, 100]}, 'steps': [{'range': [0, 30], 'color': "#ef4444"}, {'range': [30, 70], 'color': "#f59e0b"}, {'range': [70, 100], 'color': "#10b981"}]}))
                         fig_g1.update_layout(height=250, paper_bgcolor="rgba(0,0,0,0)", font={'color': "white"})
                         st.plotly_chart(fig_g1, use_container_width=True)
                     with col_gauge2:
                         beta = info.get('beta', 1.0)
-                        fig_g2 = go.Figure(go.Indicator(mode = "gauge+number", value = min(abs(beta) * 50, 100) if beta else 50, title = {'text': "Tingkat Risiko Goncangan", 'font': {'color': 'white'}}, gauge = {'axis': {'range': [0, 100]}, 'steps': [{'range': [0, 40], 'color': "#10b981"}, {'range': [40, 70], 'color': "#f59e0b"}, {'range': [70, 100], 'color': "#ef4444"}]}))
+                        fig_g2 = go.Figure(go.Indicator(mode = "gauge+number", value = min(abs(beta) * 50, 100) if beta else 50, title = {'text': "Tingkat Goncangan Harga (Risiko)", 'font': {'color': 'white', 'size':16}}, gauge = {'axis': {'range': [0, 100]}, 'steps': [{'range': [0, 40], 'color': "#10b981"}, {'range': [40, 70], 'color': "#f59e0b"}, {'range': [70, 100], 'color': "#ef4444"}]}))
                         fig_g2.update_layout(height=250, paper_bgcolor="rgba(0,0,0,0)", font={'color': "white"})
                         st.plotly_chart(fig_g2, use_container_width=True)
 
                 with tab3:
-                    st.markdown("### 🏢 Fundamental Perusahaan (Kesehatan Bisnis)")
-                    st.write("*Penjelasan ini dirancang khusus agar mudah dipahami oleh pemula.*")
+                    st.markdown("### 🏢 Fundamental Perusahaan (Rapor Bisnis)")
+                    st.write("*Jangan bingung dengan istilah dewa saham. AI kami sudah memberikan terjemahannya di setiap baris!*")
                     st.markdown("---")
                     
                     c_fun1, c_fun2 = st.columns(2)
                     with c_fun1:
                         mc = info.get('marketCap', 0)
                         st.write(f"**1. Kapitalisasi Pasar:** {mata_uang} {mc:,.0f}")
-                        st.caption("*(Total harga jika Anda ingin membeli seluruh perusahaan ini beserta gedungnya. Semakin besar, semakin aman dari kebangkrutan).*")
+                        st.caption("*(Total harga jika Anda menjadi sultan dan ingin membeli seluruh perusahaan ini beserta seluruh gedungnya. Semakin besar angkanya, semakin perusahaan ini kebal terhadap kebangkrutan).*")
                         
                         pe = info.get('trailingPE', 0)
                         st.write(f"**2. Valuasi PER (Price to Earnings):** {pe:.2f}x")
-                        st.caption("*(Menunjukkan berapa lama modal Anda akan balik. Di bawah 15x dianggap murah. Di atas 25x dianggap mahal).*")
+                        st.caption("*(Mengukur kemahalan saham. Artinya butuh waktu {pe:.0f} tahun agar modal investasi Anda balik 100% dari keuntungan perusahaan).*")
                         
                         pbv = info.get('priceToBook', 0)
                         st.write(f"**3. Valuasi PBV (Price to Book):** {pbv:.2f}x")
-                        st.caption("*(Harga saham dibanding nilai kekayaan perusahaan. Angka 1 artinya harga wajar. Di bawah 1 berarti hancur/sangat murah).*")
+                        st.caption("*(Perbandingan harga saham dengan harta fisik perusahaan. Jika angkanya 1, harganya wajar. Jika di bawah 1, harga sangat murah/diskon).*")
                         
                     with c_fun2:
                         pm = info.get('profitMargins', 0) * 100
-                        st.write(f"**4. Margin Keuntungan Bersih:** {pm:.2f}%")
-                        st.caption("*(Berapa persen laba bersih yang masuk kantong perusahaan dari total penjualannya).*")
+                        st.write(f"**4. Margin Laba Bersih:** {pm:.2f}%")
+                        st.caption("*(Keringat keuntungan. Dari setiap Rp 100 ribu barang yang mereka jual, mereka mengantongi untung bersih sebesar {pm:.1f} ribu).*")
                         
                         dy = info.get('dividendYield', 0) * 100 if info.get('dividendYield') else 0
-                        st.write(f"**5. Dividen Tahunan:** {dy:.2f}% per tahun")
-                        st.caption("*(Bonus uang tunai dari keuntungan perusahaan yang akan ditransfer ke rekening Anda setiap tahun).*")
+                        st.write(f"**5. Bunga Dividen Tahunan:** {dy:.2f}% per tahun")
+                        st.caption("*(Mirip bunga deposito. Ini adalah bonus uang tunai yang akan otomatis masuk ke rekening Anda setiap tahun).*")
                         
                         deb = info.get('debtToEquity', 0)
-                        st.write(f"**6. Rasio Hutang (Debt to Equity):** {deb}%")
-                        st.caption("*(Jika di atas 100%, berarti hutang perusahaan lebih besar dari modalnya. Hati-hati!).*")
+                        st.write(f"**6. Rasio Tumpukan Hutang:** {deb}%")
+                        st.caption("*(Tingkat hutang dibandingkan modal sendiri. Jika di atas 100%, tandanya hutang mereka lebih besar dari modal mereka. Bahaya jika ekonomi krisis).*")
 
                 with tab4:
+                    st.markdown("### Terminal Grafik Teknikal")
                     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_width=[0.2, 0.8])
                     fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name='Harga'), row=1, col=1)
-                    fig.add_trace(go.Scatter(x=df.index, y=df['EMA_20'], line=dict(color='#fbbf24', width=1.5), name='EMA 20'), row=1, col=1)
+                    fig.add_trace(go.Scatter(x=df.index, y=df['EMA_20'], line=dict(color='#fbbf24', width=1.5), name='Tren Menengah (EMA)'), row=1, col=1)
                     v_colors = ['#10b981' if df.iloc[i]['Close'] >= df.iloc[i]['Open'] else '#ef4444' for i in range(len(df))]
-                    fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=v_colors, name='Volume'), row=2, col=1)
+                    fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=v_colors, name='Aktivitas Jual-Beli'), row=2, col=1)
                     fig.update_layout(template='plotly_dark', height=500, xaxis_rangeslider_visible=False)
                     st.plotly_chart(fig, use_container_width=True)
 
             except Exception as e:
-                st.error("Gagal menarik data. Coba lagi atau gunakan kode yang valid.")
+                st.error("Server kami gagal menghubungi bursa global. Pastikan koneksi internet lancar atau kode saham yang Anda masukkan benar.")
 
 # ==========================================
 # 6. MODUL HPP
