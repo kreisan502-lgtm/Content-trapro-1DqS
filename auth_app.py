@@ -10,13 +10,43 @@ def show_login_screen():
         e_log = st.text_input("Email Pembelian", key="log_email")
         p_log = st.text_input("Password", type="password", key="log_pass")
         
-        # Link Biru "Lupa kata sandi?" sesuai permintaan
+        # Link Lupa Kata Sandi (Teks Biru Kecil)
         st.markdown("""
             <div style="text-align: right; margin-top: -15px; margin-bottom: 10px;">
-                <a href="https://wa.me/6285797416836?text=Halo%20Admin,%20saya%20lupa%20password" 
-                style="color: #60a5fa; text-decoration: none; font-size: 0.8rem;">Lupa kata sandi?</a>
+                <p style="color: #60a5fa; font-size: 0.8rem; margin: 0;">Lupa kata sandi?</p>
             </div>
         """, unsafe_allow_html=True)
+        
+        # Menu Baru Reset Password (Mandiri)
+        with st.expander("Reset Password (Masukkan Email & Key)"):
+            f_email = st.text_input("Email Akun", key="f_email")
+            f_key = st.text_input("License Key", key="f_key")
+            
+            if st.button("VERIFIKASI DATA", use_container_width=True):
+                info = get_key_info(f_key)
+                if info and info['email'] == f_email:
+                    st.session_state.reset_mode = True
+                    st.session_state.res_email = f_email
+                    st.session_state.res_key = f_key
+                    st.success("Identitas Terverifikasi! Silakan buat password baru.")
+                else:
+                    st.error("Email atau Key tidak sesuai.")
+
+            if st.session_state.get('reset_mode'):
+                new_p = st.text_input("Password Baru", type="password", key="new_p_reset")
+                if st.button("SIMPAN PASSWORD BARU", use_container_width=True):
+                    if new_p:
+                        # Menggunakan verify_user mode signup untuk update password di database
+                        res = verify_user(st.session_state.res_email, new_p, key=st.session_state.res_key, mode="signup")
+                        if res == "SUCCESS_SIGNUP":
+                            st.success("Berhasil! Password telah diperbarui. Silakan Login.")
+                            st.session_state.reset_mode = False
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error("Gagal memperbarui password.")
+                    else:
+                        st.warning("Password tidak boleh kosong.")
 
         if st.button("MASUK", use_container_width=True):
             res = verify_user(e_log, p_log, mode="login")
@@ -29,7 +59,7 @@ def show_login_screen():
 
     # --- TAB DAFTAR ---
     with tab2:
-        # Kotak Panduan Pendaftaran Biru
+        # Kotak Panduan Pendaftaran Biru (Tetap Sama)
         st.markdown("""
             <div style="background-color: #1e3a8a; padding: 15px; border-radius: 10px; border-left: 5px solid #fbbf24; margin-bottom: 20px;">
                 <p style="color: white; margin: 0; font-weight: bold;">💡 Panduan Pendaftaran:</p>
@@ -40,7 +70,6 @@ def show_login_screen():
 
         r_key = st.text_input("License Key", key="reg_key", placeholder="BIZ-XXXXXXX")
         
-        # Tombol Validasi Manual
         if st.button("VALIDASI KEY", use_container_width=True):
             info = get_key_info(r_key)
             if info and info['status'] == "AKTIF":
@@ -50,7 +79,6 @@ def show_login_screen():
             else:
                 st.error("Key tidak valid atau sudah digunakan.")
 
-        # Jika key valid, tampilkan input password saja
         if st.session_state.get('key_valid'):
             st.text_input("Nama Terdaftar", value=st.session_state.temp_nama, disabled=True)
             st.text_input("Email Terdaftar", value=st.session_state.temp_email, disabled=True)
@@ -60,5 +88,6 @@ def show_login_screen():
                 if r_pass:
                     res = verify_user(st.session_state.temp_email, r_pass, key=r_key, mode="signup")
                     if res == "SUCCESS_SIGNUP":
-                        st.success("Akun Berhasil Aktif! Silakan pindah ke tab LOGIN.")
+                        st.success("Akun Berhasil Aktif!")
                         st.balloons()
+                        
