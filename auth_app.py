@@ -94,6 +94,7 @@ def show_login_screen(cookie_manager):
         if st.session_state.get('rk_ok'):
             inf = st.session_state.reg_info
             st.text_input("Nama", value=inf['nama'], disabled=True)
+            st.text_input("Email Pembelian", value=inf['email'], disabled=True)
             r_pass = st.text_input("Buat Password", type="password", key="new_reg_pass")
             if st.button("DAFTAR SEKARANG", use_container_width=True):
                 if verify_user(inf['email'], r_pass, key=st.session_state.rk_ok, mode="signup") == "SUCCESS_SIGNUP":
