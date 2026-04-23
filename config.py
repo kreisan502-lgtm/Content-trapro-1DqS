@@ -1,8 +1,7 @@
 # config.py
 
-# Ganti URL di bawah ini dengan URL Web App terbaru dari Google Apps Script kamu
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx...MASUKKAN_URL_KAMU_DI_SINI.../exec"
+# URL CSV dari Google Sheets (File -> Share -> Publish to Web -> CSV)
+CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyzO1OA-Cq8Tabx9KODOX9VWNFTZ0Gluuja8qztT30GR7c2FbPoJLBs_F1h8KRtRYnW6SRbKM1jpu1/pub?gid=0&single=true&output=csv"
 
-# Kamu juga bisa menambah konfigurasi lain di sini jika diperlukan
-APP_NAME = "BizInvest VIP Suite"
-VERSION = "2.0"
+# URL Deployment dari Google Apps Script
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxohqgxxasTpUpdgPPzu2TLrftc6JYdQ51u51CsMt6-TLAjXhIHTNKHB4RHHtW2_6fR/exec"
