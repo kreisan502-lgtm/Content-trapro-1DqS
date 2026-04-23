@@ -5,46 +5,63 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas_ta as ta
 
-# 1. Konfigurasi Halaman & Injeksi CSS Premium
+# ==========================================
+# 1. KONFIGURASI HALAMAN & UI PREMIUM CSS
+# ==========================================
 st.set_page_config(page_title="BizInvest Pro Suite", layout="wide", initial_sidebar_state="expanded")
 
-# CSS Kustom untuk UI Premium (Efek Kartu, Tombol Presisi, dan Warna)
 st.markdown("""
     <style>
-    /* Menyembunyikan elemen bawaan Streamlit */
+    /* Menyembunyikan elemen bawaan Streamlit agar terlihat seperti Web App Mandiri */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Styling Tombol Premium */
+    /* Tampilan Tombol Premium (Gradien & Hover Effect) */
     .stButton>button {
         width: 100%;
         border-radius: 8px;
-        background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         color: white;
         font-weight: bold;
         border: none;
         padding: 0.6rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
     .stButton>button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
     }
     
-    /* Styling Metrik (Card Effect) */
+    /* Styling Metrik (Efek Kartu Dashboard) */
     div[data-testid="metric-container"] {
-        background-color: #1e1e1e;
+        background-color: #1a1a2e;
         border-radius: 10px;
         padding: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        border-left: 5px solid #4CAF50;
+        border-left: 5px solid #0f3460;
+    }
+    
+    /* Mempercantik Judul Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: transparent;
+        border-radius: 4px 4px 0px 0px;
+        padding-top: 10px;
+        padding-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 2. Sistem Login Sederhana
+# ==========================================
+# 2. SISTEM KEAMANAN (PAYWALL LOGIN)
+# ==========================================
 def check_password():
     def password_entered():
         if st.session_state["password"] == "AksesPremium123":
@@ -54,22 +71,25 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.markdown("### 🔐 Login Akses BizInvest Pro")
+        st.markdown("<h2 style='text-align: center;'>🔐 Login Akses BizInvest Pro</h2>", unsafe_allow_html=True)
+        st.write("---")
         st.text_input("Masukkan Password Akses:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.markdown("### 🔐 Login Akses BizInvest Pro")
+        st.markdown("<h2 style='text-align: center;'>🔐 Login Akses BizInvest Pro</h2>", unsafe_allow_html=True)
+        st.write("---")
         st.text_input("Masukkan Password Akses:", type="password", on_change=password_entered, key="password")
-        st.error("Password salah. Akses ditolak.")
+        st.error("❌ Password salah. Pastikan kamu sudah membeli akses resmi.")
         return False
     return True
 
-# 3. Modul AI Trading Super Canggih
+# ==========================================
+# 3. MODUL 1: AI TRADING TERMINAL
+# ==========================================
 def menu_trading():
     st.markdown("## 📈 Terminal Analisis Kuantitatif")
     st.caption("Didukung oleh algoritma teknikal tingkat lanjut")
     
-    # Kontrol Panel Atas
     with st.container():
         col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
         with col1:
@@ -79,7 +99,7 @@ def menu_trading():
         with col3:
             interval = st.selectbox("Interval", ["1d", "1wk", "1mo"], index=0)
         with col4:
-            st.markdown("<br>", unsafe_allow_html=True) # Spasi agar tombol sejajar
+            st.markdown("<br>", unsafe_allow_html=True)
             analyze_btn = st.button("Analisis Pasar")
 
     st.markdown("---")
@@ -91,21 +111,19 @@ def menu_trading():
                 df = ticker_data.history(period=timeframe, interval=interval)
                 
                 if df.empty:
-                    st.error("Data tidak ditemukan. Pastikan kode emiten valid.")
+                    st.warning("⚠️ Data tidak ditemukan. Pastikan kode emiten valid (tambahkan .JK untuk saham Indonesia).")
                     return
                 
                 # Kalkulasi Indikator
                 df.ta.macd(append=True)
                 df.ta.rsi(length=14, append=True)
                 df.ta.bbands(append=True)
-                df.ta.sma(length=20, append=True) # Simple Moving Average 20
-                df.ta.ema(length=50, append=True) # Exponential Moving Average 50
+                df.ta.sma(length=20, append=True)
+                df.ta.ema(length=50, append=True)
 
-                # TABS UI (Sangat Profesional)
                 tab1, tab2, tab3 = st.tabs(["📊 Grafik & Indikator Utama", "🤖 Rekomendasi Sistem AI", "🏢 Profil Perusahaan"])
                 
                 with tab1:
-                    # Metrik Harga Real-time
                     current_price = df['Close'].iloc[-1]
                     prev_price = df['Close'].iloc[-2]
                     price_change = current_price - prev_price
@@ -115,32 +133,29 @@ def menu_trading():
                     m1.metric("Harga Terakhir", f"Rp {current_price:,.0f}", f"{pct_change:.2f}%")
                     m2.metric("Volume Transaksi", f"{df['Volume'].iloc[-1]:,.0f}")
                     m3.metric("RSI (14)", f"{df['RSI_14'].iloc[-1]:.2f}")
-                    m4.metric("Tren MACD", "Bullish" if df['MACD_12_26_9'].iloc[-1] > df['MACDs_12_26_9'].iloc[-1] else "Bearish")
+                    m4.metric("Tren MACD", "Bullish 🟢" if df['MACD_12_26_9'].iloc[-1] > df['MACDs_12_26_9'].iloc[-1] else "Bearish 🔴")
 
-                    # Pembuatan Grafik Plotly (Candlestick + Volume)
                     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
                                         vertical_spacing=0.03, subplot_titles=(f'Pergerakan Harga {ticker_symbol.upper()}', 'Volume'), 
                                         row_width=[0.2, 0.7])
 
-                    # Plot Candlestick
                     fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name='Harga'), row=1, col=1)
-                    # Plot Moving Averages
                     fig.add_trace(go.Scatter(x=df.index, y=df['SMA_20'], line=dict(color='orange', width=1.5), name='SMA 20'), row=1, col=1)
                     fig.add_trace(go.Scatter(x=df.index, y=df['EMA_50'], line=dict(color='cyan', width=1.5), name='EMA 50'), row=1, col=1)
-                    # Plot Volume
-                    colors = ['green' if row['Open'] - row['Close'] >= 0 else 'red' for index, row in df.iterrows()]
+                    
+                    colors = ['#26a69a' if row['Open'] - row['Close'] >= 0 else '#ef5350' for index, row in df.iterrows()]
                     fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=colors, name='Volume'), row=2, col=1)
 
                     fig.update_layout(xaxis_rangeslider_visible=False, height=600, template='plotly_dark', margin=dict(l=0, r=0, t=30, b=0))
                     st.plotly_chart(fig, use_container_width=True)
 
                 with tab2:
-                    st.markdown("### Kesimpulan Analisis Teknikal")
+                    st.markdown("### 💡 Kesimpulan Analisis Teknikal")
                     rsi_val = df['RSI_14'].iloc[-1]
                     macd_val = df['MACD_12_26_9'].iloc[-1]
                     signal_val = df['MACDs_12_26_9'].iloc[-1]
                     
-                    rekomendasi = "HOLD (Pantau Ketat)"
+                    rekomendasi = "HOLD (Pantau Ketat) 🟡"
                     alasan = "Pasar sedang dalam fase konsolidasi atau tidak menunjukkan momentum arah yang kuat."
                     
                     if rsi_val < 30 and macd_val > signal_val:
@@ -151,7 +166,7 @@ def menu_trading():
                         alasan = "Aset berada di area jenuh beli (Overbought) atau momentum tren mulai melemah (Death Cross)."
                         
                     st.success(f"**Rekomendasi Algoritma:** {rekomendasi}")
-                    st.write(f"**Dasar Logika:** {alasan}")
+                    st.info(f"**Dasar Logika AI:** {alasan}")
                     
                     with st.expander("Lihat Data Tabel Mentah"):
                         st.dataframe(df.tail(10))
@@ -165,20 +180,60 @@ def menu_trading():
                     st.write(info.get('longBusinessSummary', 'Data deskripsi tidak tersedia untuk emiten ini.'))
 
         except Exception as e:
-            st.error(f"Terjadi kesalahan saat mengambil data: {e}")
+            st.error(f"Terjadi kesalahan teknis saat memproses grafik: {e}")
 
-# 4. Navigasi Utama Aplikasi
+# ==========================================
+# 4. MODUL 2: KALKULATOR HPP PRODUKSI
+# ==========================================
+def menu_hpp():
+    st.markdown("## 📦 Kalkulator HPP & Manajemen Margin")
+    st.caption("Hitung Harga Pokok Penjualan untuk produksi bisnis dengan akurat.")
+    
+    st.markdown("---")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("#### 📝 Input Biaya Operasional")
+        bahan_baku = st.number_input("Total Biaya Bahan Baku (Rp)", min_value=0, value=1500000, step=50000)
+        tenaga_kerja = st.number_input("Total Biaya Tenaga Kerja (Rp)", min_value=0, value=500000, step=50000)
+        overhead = st.number_input("Biaya Overhead / Lain-lain (Rp)", min_value=0, value=200000, step=10000)
+        
+    with col2:
+        st.markdown("#### 🎯 Target Produksi & Keuntungan")
+        jumlah_produksi = st.number_input("Target Jumlah Produksi (Unit/Pcs)", min_value=1, value=100, step=10)
+        margin = st.slider("Target Margin Keuntungan (%)", min_value=0, max_value=100, value=35)
+        
+    st.markdown("<br>", unsafe_allow_html=True)
+        
+    if st.button("Hitung HPP & Harga Jual Otomatis"):
+        total_biaya = bahan_baku + tenaga_kerja + overhead
+        hpp_per_unit = total_biaya / jumlah_produksi
+        laba_per_unit = hpp_per_unit * (margin / 100)
+        harga_jual = hpp_per_unit + laba_per_unit
+        
+        st.markdown("### 📊 Hasil Kalkulasi")
+        col_res1, col_res2, col_res3 = st.columns(3)
+        
+        col_res1.metric(label="Total Biaya Produksi", value=f"Rp {total_biaya:,.0f}")
+        col_res2.metric(label="HPP per Unit", value=f"Rp {hpp_per_unit:,.0f}")
+        col_res3.metric(label="Rekomendasi Harga Jual", value=f"Rp {harga_jual:,.0f}", delta=f"Laba Rp {laba_per_unit:,.0f}/unit")
+        
+        st.success("✅ Kalkulasi berhasil! Sesuaikan harga jual ke pasar untuk memaksimalkan keuntungan.")
+
+# ==========================================
+# 5. NAVIGASI UTAMA (SIDEBAR)
+# ==========================================
 if check_password():
     with st.sidebar:
-        st.markdown("## ⚙️ Main Menu")
-        pilihan = st.radio("Pilih Modul:", ["AI Trading Terminal", "Kalkulator HPP & Margin"])
-        st.markdown("---")
-        st.caption("BizInvest Pro Suite v2.0")
-        st.caption("Licensed Copy")
+        st.markdown("<h2 style='text-align: center;'>⚡ BizInvest Pro</h2>", unsafe_allow_html=True)
+        st.write("---")
+        pilihan = st.radio("Pilih Modul Aplikasi:", ["AI Trading Terminal", "Kalkulator HPP & Margin"])
+        st.write("---")
+        st.caption("Version 2.0 - Premium Edition")
+        st.caption("© 2026 Hak Cipta Dilindungi")
     
     if pilihan == "AI Trading Terminal":
         menu_trading()
     elif pilihan == "Kalkulator HPP & Margin":
-        st.title("📦 Modul Kalkulator HPP (Segera Hadir)")
-        st.info("Modul HPP bisa kamu tempelkan dari kode sebelumnya di bagian ini.")
-                    
+        menu_hpp()
+    
