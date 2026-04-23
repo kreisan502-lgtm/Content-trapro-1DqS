@@ -1,48 +1,37 @@
 import streamlit as st
 import pandas as pd
 import requests
-import uuid
 
-# URL tetap sama
+# URL Database dan Script kamu
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyzO1OA-Cq8Tabx9KODOX9VWNFTZ0Gluuja8qztT30GR7c2FbPoJLBs_F1h8KRtRYnW6SRbKM1jpu1/pub?gid=0&single=true&output=csv"
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7l7Tn_ciHFOYUI17e7_kbGDUCXe5c4Uvmm4hEwBuWi9XQi4L8Q8yLaIJoUri6gOkL/exec"
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVq2GUVGrA3f9efmsUCeEsYNonQjdYAueHZNyt4bV__k99HSn5EG6YDPgOLhyAX3A7/exec"
 
-def get_device_id():
-    """Membuat ID unik permanen yang disimpan di session browser"""
-    if 'unique_browser_id' not in st.session_state:
-        # Membuat ID acak yang sangat panjang sehingga tidak mungkin sama
-        st.session_state.unique_browser_id = str(uuid.uuid4())
-    return st.session_state.unique_browser_id
-
-def lock_device_to_sheet(key, device_id):
+def verify_user(email, password, key=None, mode="login"):
     try:
-        requests.get(f"{SCRIPT_URL}?key={key}&device_id={device_id}", timeout=10)
-    except:
-        pass
-
-def verify_activation(input_key):
-    try:
+        # Membaca database secara real-time
         df = pd.read_csv(SHEET_CSV_URL)
         df.columns = df.columns.str.strip()
         
-        # Ambil ID unik yang dibuat khusus untuk browser ini
-        current_device = get_device_id()
-        
-        if input_key in df['Key'].values:
-            row = df[df['Key'] == input_key].iloc[0]
-            device_terdaftar = str(row['Device_ID']).strip()
-
-            # JIKA KOSONG (User Pertama)
-            if pd.isna(row['Device_ID']) or device_terdaftar in ["nan", "", "None"]:
-                lock_device_to_sheet(input_key, current_device)
-                return {"status": "FIRST_TIME_LOCK", "device_id": current_device}
+        if mode == "signup":
+            # Cek apakah Kode Aktivasi ada dan belum punya pemilik (kolom Email kosong)
+            if key in df['Key'].values:
+                row = df[df['Key'] == key].iloc[0]
+                # Anggap kolom B (index 1) adalah Email
+                if pd.isna(row['Email']) or str(row['Email']).strip() == "":
+                    # Kirim data pendaftaran ke Google Sheet
+                    requests.get(f"{SCRIPT_URL}?key={key}&email={email}&pass={password}", timeout=10)
+                    return "SUCCESS_SIGNUP"
+                else:
+                    return "KEY_ALREADY_USED"
+            return "INVALID_KEY"
             
-            # JIKA SUDAH ADA, CEK COCOK ATAU TIDAK
-            if device_terdaftar == current_device:
-                return {"status": "VALID"}
-            else:
-                return {"status": "LOCKED_OTHER_DEVICE"}
-        
-        return {"status": "INVALID_KEY"}
+        elif mode == "login":
+            # Mencari baris yang email dan password-nya cocok
+            # Pastikan password di Sheet disimpan sebagai teks/string
+            match = df[(df['Email'].astype(str) == str(email)) & (df['Password'].astype(str) == str(password))]
+            if not match.empty:
+                return "SUCCESS_LOGIN"
+            return "WRONG_CREDENTIALS"
+            
     except Exception as e:
-        return {"status": "ERROR", "msg": str(e)}
+        return f"ERROR: {str(e)}"
