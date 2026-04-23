@@ -1,11 +1,12 @@
 import streamlit as st
 import time
 import datetime
-from extra_streamlit_components import CookieManager
 from security import verify_user, get_key_info
 
-def show_login_screen():
-    cm = CookieManager()
+def show_login_screen(cookie_manager):
+    # Gunakan cookie_manager yang dikirim dari main_pro
+    cm = cookie_manager 
+    
     if 'auth_view' not in st.session_state: st.session_state.auth_view = "login_page"
     
     t1, t2 = st.tabs(["🔐 LOGIN", "📝 DAFTAR"])
@@ -23,11 +24,12 @@ def show_login_screen():
                 
                 # 2. Tanam Cookie (Berlaku 30 Hari)
                 expiry = datetime.date.today() + datetime.timedelta(days=30)
+                # Gunakan .set() untuk menyimpan
                 cm.set("vip_user_email", res["email"], expires_at=expiry)
                 cm.set("vip_user_nama", res["nama"], expires_at=expiry)
                 
-                st.success("Login Berhasil! Memuat Dashboard...")
-                time.sleep(1)
+                st.success("Login Berhasil!")
+                time.sleep(0.5)
                 st.rerun()
             else:
                 st.error("Email atau Password salah.")
@@ -38,10 +40,10 @@ def show_login_screen():
         
         if st.button("VALIDASI KEY", use_container_width=True):
             info = get_key_info(r_key)
-            if info and info['can_register']:
+            if info and info.get('can_register'):
                 st.session_state.reg_info = info
                 st.session_state.rk_ok = r_key
-                st.success("Key Valid! Silakan buat password.")
+                st.success("Key Valid!")
             else:
                 st.error("Key tidak ditemukan atau sudah terdaftar.")
 
@@ -54,7 +56,7 @@ def show_login_screen():
                 if r_pass:
                     status = verify_user(inf['email'], r_pass, key=st.session_state.rk_ok, mode="signup")
                     if status == "SUCCESS_SIGNUP":
-                        st.success("Pendaftaran Berhasil! Silakan Login di tab sebelah.")
+                        st.success("Pendaftaran Berhasil!")
                         st.balloons()
                 else:
                     st.warning("Password tidak boleh kosong.")
