@@ -1,3 +1,11 @@
+import streamlit as st
+import time
+from security import verify_user, reset_password
+from extra_streamlit_components import CookieManager
+
+# PINDAHKAN KE SINI (Di luar fungsi agar bisa di-import file lain)
+cookie_manager = CookieManager()
+
 def show_login_screen():
     st.markdown("<h1 style='text-align: center; color: #fbbf24;'>👑 VIP TERMINAL</h1>", unsafe_allow_html=True)
     tab1, tab2, tab3 = st.tabs(["🔐 LOGIN", "📝 DAFTAR", "🔑 LUPA PASSWORD"])
