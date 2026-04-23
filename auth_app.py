@@ -32,8 +32,8 @@ def show_login_screen():
             else:
                 st.warning("Mohon isi Email dan Password.")
 
-     with tab2:
-        # Teks info box yang baru dengan link aktif
+    with tab2:
+        # Info Box dengan link aktif
         st.markdown(
             """
             <div style="background-color: #1e3a8a; padding: 15px; border-radius: 10px; border-left: 5px solid #3b82f6; margin-bottom: 20px;">
@@ -53,7 +53,21 @@ def show_login_screen():
         r_pin = st.text_input("Buat PIN (6 Digit)", type="password", key="signup_pin_input")
         
         if st.button("DAFTAR AKUN", use_container_width=True, key="btn_signup_submit"):
-            # ... (logika pendaftaran sama seperti sebelumnya)
+            if r_key and r_email and r_pass and r_pin:
+                # Memanggil fungsi verify_user dengan mode signup
+                res = verify_user(r_email, r_pass, key=r_key, pin=r_pin, mode="signup")
+                
+                if res == "SUCCESS_SIGNUP":
+                    st.success("Pendaftaran Berhasil! Silakan Login di tab LOGIN.")
+                    st.balloons()
+                elif res == "KEY_ALREADY_USED":
+                    st.error("Key ini sudah pernah digunakan.")
+                elif res == "INVALID_KEY":
+                    st.error("Key tidak valid. Pastikan sudah klaim kode.")
+                else:
+                    st.error(f"Gagal: {res}")
+            else:
+                st.warning("Lengkapi semua kolom pendaftaran.")
 
     with tab3:
         st.subheader("Reset Password")
@@ -71,3 +85,4 @@ def show_login_screen():
                     st.error("Data tidak cocok atau PIN salah.")
             else:
                 st.warning("Mohon lengkapi semua syarat reset.")
+                
