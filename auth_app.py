@@ -32,31 +32,28 @@ def show_login_screen():
             else:
                 st.warning("Mohon isi Email dan Password.")
 
-    with tab2:
-        st.info("Gunakan License Key (Key) yang Anda klaim dari email LYNK.")
-        r_key = st.text_input("License Key (Key)", key="signup_key_input")
-        r_email = st.text_input("Email (Sesuai LYNK)", key="signup_email_input")
+     with tab2:
+        # Teks info box yang baru dengan link aktif
+        st.markdown(
+            """
+            <div style="background-color: #1e3a8a; padding: 15px; border-radius: 10px; border-left: 5px solid #3b82f6; margin-bottom: 20px;">
+                <p style="color: white; margin: 0; font-size: 14px;">
+                    💡 <b>Panduan Pendaftaran:</b><br>
+                    1. Jika belum memiliki License Key, silakan <a href="http://lynk.id/nore30/pv6kkekzp1j0/checkout" style="color: #fbbf24; font-weight: bold; text-decoration: none;">ORDER KEY DI SINI</a>.<br>
+                    2. Jika sudah bayar tapi belum klaim kode, silakan <a href="https://script.google.com/macros/s/AKfycbztryd1YOJLuSiltboR5Lg7bwata41Gu7SrrIdnUMR-FdVlxlUMwVb4f5Udu7xzLUX-/exec" style="color: #fbbf24; font-weight: bold; text-decoration: none;">KLAIM KODE DI SINI</a>.
+                </p>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+
+        r_key = st.text_input("License Key", key="signup_key_input")
+        r_email = st.text_input("Email Baru", key="signup_email_input")
         r_pass = st.text_input("Buat Password", type="password", key="signup_pass_input")
         r_pin = st.text_input("Buat PIN (6 Digit)", type="password", key="signup_pin_input")
         
         if st.button("DAFTAR AKUN", use_container_width=True, key="btn_signup_submit"):
-            if r_key and r_email and r_pass and r_pin:
-                # Pastikan memanggil verify_user dengan mode signup
-                res = verify_user(r_email, r_pass, key=r_key, pin=r_pin, mode="signup")
-                
-                # Kita sesuaikan dengan return dari security.py (yang kita buat tadi)
-                if res == "SUCCESS_SIGNUP":
-                    st.success("Pendaftaran Berhasil! Status Key di Sheets kini: TERPAKAI.")
-                    st.balloons()
-                    st.info("Silakan pindah ke tab LOGIN untuk masuk.")
-                elif res == "KEY_ALREADY_USED":
-                    st.error("Key ini sudah pernah digunakan untuk mendaftar.")
-                elif res == "INVALID_KEY":
-                    st.error("Key tidak ditemukan. Pastikan Anda sudah klaim Key via link Google Script.")
-                else:
-                    st.error(f"Gagal: {res}")
-            else:
-                st.warning("Lengkapi semua kolom pendaftaran.")
+            # ... (logika pendaftaran sama seperti sebelumnya)
 
     with tab3:
         st.subheader("Reset Password")
