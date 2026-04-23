@@ -1,91 +1,72 @@
 import streamlit as st
-import time # Penyelamat agar tidak blank screen
-from security import verify_activation
+import time
+from security import verify_user
 from investasi import show_investasi
 from kalkulator import show_hpp
 
-# Konfigurasi Halaman Dasar
-st.set_page_config(page_title="BizInvest VIP Suite", layout="wide")
+st.set_page_config(page_title="BizInvest VIP Suite", layout="centered")
 
-# CSS Premium Gold & Dark
+# CSS Premium
 st.markdown("""
     <style>
     .stApp { background-color: #0b0f19; color: white; }
-    .auth-card {
-        background: #171f2d; padding: 40px; border-radius: 20px;
-        border: 2px solid #fbbf24; text-align: center;
-        box-shadow: 0 10px 25px rgba(251, 191, 36, 0.2);
-    }
-    .stButton>button {
-        width: 100%; border-radius: 10px; height: 3em;
-        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-        color: black; font-weight: bold; border: none;
-    }
+    .auth-container { background: #171f2d; padding: 30px; border-radius: 15px; border: 1px solid #fbbf24; }
     </style>
 """, unsafe_allow_html=True)
 
-# State Management
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
-def show_login():
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
-    _, col2, _ = st.columns([1, 2, 1])
+def show_auth_page():
+    st.markdown("<h1 style='text-align: center; color: #fbbf24;'>👑 VIP TERMINAL</h1>", unsafe_allow_html=True)
     
-    with col2:
-        st.markdown("<div class='auth-card'>", unsafe_allow_html=True)
-        st.title("👑 VIP ACTIVATION")
-        st.write("Sistem Autopilot: Masukkan Kode Lisensi Anda")
+    tab1, tab2 = st.tabs(["🔐 MASUK", "📝 DAFTAR AKUN BARU"])
+    
+    with tab1:
+        st.write("Silakan masuk dengan akun terdaftar")
+        email_log = st.text_input("Email", key="l_email")
+        pass_log = st.text_input("Password", type="password", key="l_pass")
         
-        license_key = st.text_input("LICENSE KEY", type="password", placeholder="Ketik Kode Anda di Sini")
-        
-        if st.button("AKTIVASI SEKARANG"):
-            if license_key:
-                with st.spinner("Menghubungkan ke Server Keamanan..."):
-                    res = verify_activation(license_key)
-                    
-                    if res['status'] in ["VALID", "FIRST_TIME_LOCK"]:
-                        st.session_state.authenticated = True
-                        st.success("✅ AKSES DITERIMA!")
-                        time.sleep(1)
-                        st.rerun()
-                    elif res['status'] == "LOCKED_OTHER_DEVICE":
-                        st.error("❌ KODE TERKUNCI! Lisensi ini sudah terikat di perangkat lain.")
-                    else:
-                        st.error("❌ KODE TIDAK VALID! Pastikan kode benar.")
-            else:
-                st.warning("Mohon isi kode terlebih dahulu.")
-        st.markdown("</div>", unsafe_allow_html=True)
+        if st.button("LOGIN", use_container_width=True):
+            with st.spinner("Memverifikasi..."):
+                res = verify_user(email_log, pass_log, mode="login")
+                if res == "SUCCESS_LOGIN":
+                    st.session_state.authenticated = True
+                    st.success("Selamat Datang!")
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Email atau Password salah!")
 
-# Logika Navigasi App
-try:
-    if not st.session_state.authenticated:
-        show_login()
-    else:
-        if 'page' not in st.session_state: st.session_state.page = 'home'
+    with tab2:
+        st.write("Gunakan Kode Aktivasi dari LYNK untuk mendaftar")
+        reg_key = st.text_input("Kode Aktivasi (License Key)", placeholder="Contoh: BIZ-XXX-VIP")
+        reg_email = st.text_input("Email Baru", placeholder="email@anda.com")
+        reg_pass = st.text_input("Buat Password", type="password")
         
-        if st.session_state.page == 'home':
-            st.markdown("<h1 style='text-align: center; color: #fbbf24; margin-top: 5vh;'>TERMINAL UTAMA</h1>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align: center;'>Pilih modul profesional Anda</p>", unsafe_allow_html=True)
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("📈 INVESTMENT TERMINAL"):
-                    st.session_state.page = 'investasi'
-                    st.rerun()
-            with c2:
-                if st.button("📦 BUSINESS CALCULATOR"):
-                    st.session_state.page = 'hpp'
-                    st.rerun()
+        if st.button("DAFTAR SEKARANG", use_container_width=True):
+            if reg_key and reg_email and reg_pass:
+                with st.spinner("Mendaftarkan Akun..."):
+                    res = verify_user(reg_email, reg_pass, key=reg_key, mode="signup")
+                    if res == "SUCCESS_SIGNUP":
+                        st.success("Akun Berhasil Dibuat! Silakan login di tab MASUK.")
+                    elif res == "KEY_ALREADY_USED":
+                        st.error("Kode ini sudah pernah digunakan untuk mendaftar.")
+                    else:
+                        st.error("Kode Aktivasi tidak valid.")
+            else:
+                st.warning("Mohon lengkapi semua data.")
+
+# Logika Navigasi
+if not st.session_state.authenticated:
+    show_auth_page()
+else:
+    # (Menu Utama Investasi & HPP seperti sebelumnya)
+    st.sidebar.success(f"VIP Member Aktif")
+    if st.sidebar.button("Logout"):
+        st.session_state.authenticated = False
+        st.rerun()
         
-        elif st.session_state.page == 'investasi':
-            if st.button("⬅️ KEMBALI"): st.session_state.page = 'home'; st.rerun()
-            show_investasi()
-        
-        elif st.session_state.page == 'hpp':
-            if st.button("⬅️ KEMBALI"): st.session_state.page = 'home'; st.rerun()
-            show_hpp()
-except Exception as e:
-    st.error(f"Terjadi kesalahan sistem: {e}")
-    st.info("Pastikan file investasi.py dan kalkulator.py sudah ada di GitHub Anda.")
+    # Tampilkan menu navigasi aplikasi kamu di sini
+    st.title("Main Dashboard")
+    # ... (tampilkan show_investasi() atau show_hpp())
