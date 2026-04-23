@@ -3,39 +3,65 @@ import time
 from security import verify_user, reset_password
 from extra_streamlit_components import CookieManager
 
-# PINDAHKAN KE SINI (Di luar fungsi agar bisa di-import file lain)
+# Inisialisasi di level global agar bisa di-import main_pro.py
 cookie_manager = CookieManager()
 
 def show_login_screen():
     st.markdown("<h1 style='text-align: center; color: #fbbf24;'>👑 VIP TERMINAL</h1>", unsafe_allow_html=True)
+    
+    # Gunakan key unik untuk tabs agar state-nya terjaga
     tab1, tab2, tab3 = st.tabs(["🔐 LOGIN", "📝 DAFTAR", "🔑 LUPA PASSWORD"])
     
     with tab1:
-        # Gunakan key unik (contoh: log_email)
-        e_log = st.text_input("Email", key="log_email")
-        p_log = st.text_input("Password", type="password", key="log_pass")
-        if st.button("MASUK", use_container_width=True, key="btn_login"):
-            # ... (logika login)
-            pass
+        e_log = st.text_input("Email", key="login_email_input")
+        p_log = st.text_input("Password", type="password", key="login_pass_input")
+        
+        # Tambahkan key unik pada tombol
+        if st.button("MASUK", use_container_width=True, key="btn_login_submit"):
+            if e_log and p_log:
+                res = verify_user(e_log, p_log)
+                if res == "SUCCESS_LOGIN":
+                    cookie_manager.set("bizinvest_user", e_log)
+                    st.session_state.authenticated = True
+                    st.session_state.user_email = e_log
+                    st.success("Akses Diterima! Membuka Dashboard...")
+                    time.sleep(1)
+                    st.rerun() # PENTING: Memaksa aplikasi refresh ke menu utama
+                else:
+                    st.error("Email atau Password salah.")
+            else:
+                st.warning("Mohon isi Email dan Password.")
 
     with tab2:
         st.info("Gunakan License Key dari LYNK untuk mendaftar.")
-        # Gunakan key unik (contoh: reg_key)
-        r_key = st.text_input("License Key", key="reg_key")
-        r_email = st.text_input("Email Baru", key="reg_email")
-        r_pass = st.text_input("Buat Password", type="password", key="reg_pass")
-        r_pin = st.text_input("Buat PIN (6 Digit)", type="password", key="reg_pin")
-        if st.button("DAFTAR AKUN", use_container_width=True, key="btn_signup"):
-            # ... (logika signup)
-            pass
+        r_key = st.text_input("License Key", key="signup_key_input")
+        r_email = st.text_input("Email Baru", key="signup_email_input")
+        r_pass = st.text_input("Buat Password", type="password", key="signup_pass_input")
+        r_pin = st.text_input("Buat PIN (6 Digit)", type="password", key="signup_pin_input")
+        
+        if st.button("DAFTAR AKUN", use_container_width=True, key="btn_signup_submit"):
+            if r_key and r_email and r_pass and r_pin:
+                res = verify_user(r_email, r_pass, key=r_key, pin=r_pin, mode="signup")
+                if res == "SUCCESS_SIGNUP":
+                    st.success("Pendaftaran Berhasil! Silakan Login di tab LOGIN.")
+                else:
+                    st.error(f"Gagal: {res}")
+            else:
+                st.warning("Lengkapi semua kolom pendaftaran.")
 
     with tab3:
         st.subheader("Reset Password")
-        # Gunakan key unik (contoh: forgot_key)
-        f_email = st.text_input("Email Terdaftar", key="forgot_email")
-        f_key = st.text_input("License Key", key="forgot_key")
-        f_pin = st.text_input("PIN Keamanan", type="password", key="forgot_pin")
-        f_new_p = st.text_input("Password Baru", type="password", key="forgot_new_pass")
-        if st.button("SETEL ULANG", use_container_width=True, key="btn_reset"):
-            # ... (logika reset)
-            pass
+        f_email = st.text_input("Email Terdaftar", key="reset_email_input")
+        f_key = st.text_input("License Key", key="reset_key_input")
+        f_pin = st.text_input("PIN Keamanan", type="password", key="reset_pin_input")
+        f_new_p = st.text_input("Password Baru", type="password", key="reset_new_pass_input")
+        
+        if st.button("SETEL ULANG PASSWORD", use_container_width=True, key="btn_reset_submit"):
+            if f_email and f_key and f_pin and f_new_p:
+                res = reset_password(f_email, f_key, f_pin, f_new_p)
+                if res == "SUCCESS":
+                    st.success("Password diperbarui! Silakan Login kembali.")
+                else:
+                    st.error("Data tidak cocok atau PIN salah.")
+            else:
+                st.warning("Mohon lengkapi semua syarat reset.")
