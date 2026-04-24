@@ -6,18 +6,18 @@ def show_settings():
     st.markdown("""
         <div style="margin-top: -50px;">
             <h1 style="color: #fbbf24; font-size: 2rem; font-weight: 800;">⚙️ Profil VIP</h1>
-            <p style="color: #94a3b8; font-size: 0.9rem;">Kelola identitas dan keamanan akun Anda.</p>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Kelola identitas dan keamanan akun Anda secara real-time.</p>
         </div>
         <hr style="border: 0.5px solid #334155; margin-bottom: 30px;">
     """, unsafe_allow_html=True)
 
-    # Ambil data user saat ini (Termasuk Ref yang didapat saat Login)
+    # 1. AMBIL DATA USER (Sangat Penting: Memastikan 'ref' ikut terbawa)
     user = st.session_state.get('user_data', {"nama": "Member", "email": "", "ref": ""})
     
-    # Inisialisasi state agar data tidak hilang saat refresh
     if 'edit_mode' not in st.session_state:
         st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
 
+    # Container Input Profil
     with st.container(border=True):
         # --- SEKSI NAMA ---
         col_n1, col_n2 = st.columns([5, 1])
@@ -49,7 +49,7 @@ def show_settings():
         col_p1, col_p2 = st.columns([5, 1])
         with col_p1:
             if st.session_state.edit_mode["pass"]:
-                new_pass = st.text_input("Password Baru", type="password", placeholder="Ketik sandi baru...", key="input_pass")
+                new_pass = st.text_input("Password Baru", type="password", placeholder="Isi hanya jika ingin ganti sandi", key="input_pass")
             else:
                 st.text_input("Password", value="********", disabled=True)
         with col_p2:
@@ -58,31 +58,31 @@ def show_settings():
                 st.session_state.edit_mode["pass"] = not st.session_state.edit_mode["pass"]
                 st.rerun()
 
-    # Tampilkan Verifikasi hanya jika ada yang sedang diubah
+    # --- BAGIAN KONFIRMASI (MUNCUL JIKA ADA EDIT) ---
     if any(st.session_state.edit_mode.values()):
         st.markdown("""
             <div style="background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #fbbf24; margin-top: 20px;">
-                <p style="color: #fbbf24; margin-bottom: 10px; font-weight: bold;">🔐 Konfirmasi Perubahan</p>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: -10px;">Masukkan License Key untuk memverifikasi bahwa ini benar Anda.</p>
+                <p style="color: #fbbf24; margin-bottom: 10px; font-weight: bold;">🔐 Konfirmasi Keamanan</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: -10px;">Gunakan License Key asli Anda untuk menyimpan perubahan.</p>
             </div>
         """, unsafe_allow_html=True)
         
-        v_key = st.text_input("License Key", type="password", placeholder="BIZ-XXXXXXX")
+        v_key = st.text_input("License Key", type="password", placeholder="BIZ-XXXXXXX", key="confirm_key")
         
         c1, c2 = st.columns(2)
         with c1:
             if st.button("💾 SIMPAN PERUBAHAN", use_container_width=True):
                 if not v_key:
-                    st.error("License Key wajib diisi!")
+                    st.error("License Key wajib diisi sebagai verifikasi!")
                 else:
-                    # Ambil data baru dari input, jika tidak diedit pakai data lama dari session
+                    # 2. LOGIKA FALLBACK DATA (Cegah data jadi kosong/None)
                     final_nama = st.session_state.get('input_nama', user['nama'])
                     final_email = st.session_state.get('input_email', user['email'])
                     final_pass = st.session_state.get('input_pass', "")
-                    final_ref = user.get('ref') # AMBIL KODE REF SEBAGAI KUNCI UTAMA
+                    final_ref = user.get('ref') # Kunci Ref dari baris 15
 
-                    with st.spinner("Sinkronisasi data ke Cloud..."):
-                        # UPDATE: Menambahkan parameter nama=final_nama dan ref=final_ref
+                    with st.spinner("Sinkronisasi ke Google Sheets..."):
+                        # 3. CALL SECURITY FUNCTION (Dengan Ref sebagai parameter wajib)
                         res = verify_user(
                             email=final_email, 
                             password=final_pass, 
@@ -93,24 +93,26 @@ def show_settings():
                         )
                         
                         if res == "SUCCESS_SIGNUP":
-                            st.success(f"Berhasil! Profil {final_nama} telah diperbarui.")
-                            # Update Session State agar Sidebar & UI langsung sinkron
+                            # 4. UPDATE LOCAL SESSION (Agar Sidebar Langsung Ganti Nama)
                             st.session_state.user_data['nama'] = final_nama
                             st.session_state.user_data['email'] = final_email
-                            st.session_state.user_data['ref'] = final_ref
+                            # Ref tetap dijaga agar tidak hilang untuk edit berikutnya
+                            st.session_state.user_data['ref'] = final_ref 
                             
-                            # Reset mode edit
+                            st.success(f"✅ Profil {final_nama} Berhasil Diperbarui!")
                             st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
                             time.sleep(2)
                             st.rerun()
                         else:
-                            st.error("Gagal simpan. Periksa License Key Anda.")
+                            st.error("❌ Gagal Simpan. Pastikan License Key benar dan koneksi stabil.")
         with c2:
             if st.button("✖ BATAL", use_container_width=True):
                 st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
                 st.rerun()
 
+    # Navigasi Kembali
+    st.write("---")
     if st.button("⬅️ Kembali ke Dashboard", use_container_width=True):
         st.session_state.page = "dashboard"
         st.rerun()
-                            
+        
