@@ -57,8 +57,11 @@ def show_login_screen(cookie_manager):
             st.session_state.auth_view = "reset_page"
             st.rerun()
 
-        if st.button("MASUK", use_container_width=True):
+                # Di dalam file Auth app, bagian tombol MASUK:
+        if st.button("MASUK", use_container_width=True, key="btn_login_utama"):
             res = verify_user(e_log, p_log, mode="login")
+            # ... sisa kodingan kamu ...
+
             if isinstance(res, dict) and res["status"] == "SUCCESS":
                 # 1. Simpan ke Session State (Memori Sementara)
                 st.session_state.authenticated = True 
