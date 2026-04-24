@@ -11,7 +11,7 @@ def show_settings():
         <hr style="border: 0.5px solid #334155; margin-bottom: 30px;">
     """, unsafe_allow_html=True)
 
-    # 1. AMBIL DATA USER (Sangat Penting: Memastikan 'ref' ikut terbawa)
+    # 1. AMBIL DATA USER (Pastikan 'ref' ada)
     user = st.session_state.get('user_data', {"nama": "Member", "email": "", "ref": ""})
     
     if 'edit_mode' not in st.session_state:
@@ -23,7 +23,8 @@ def show_settings():
         col_n1, col_n2 = st.columns([5, 1])
         with col_n1:
             if st.session_state.edit_mode["nama"]:
-                new_nama = st.text_input("Ubah Nama Lengkap", value=user['nama'], key="input_nama")
+                # Gunakan value tetap dari session agar tidak kosong saat rerun
+                st.text_input("Ubah Nama Lengkap", value=user['nama'], key="input_nama")
             else:
                 st.text_input("Nama Lengkap", value=user['nama'], disabled=True)
         with col_n2:
@@ -36,7 +37,7 @@ def show_settings():
         col_e1, col_e2 = st.columns([5, 1])
         with col_e1:
             if st.session_state.edit_mode["email"]:
-                new_email = st.text_input("Ubah Email", value=user['email'], key="input_email")
+                st.text_input("Ubah Email", value=user['email'], key="input_email")
             else:
                 st.text_input("Email", value=user['email'], disabled=True)
         with col_e2:
@@ -49,7 +50,7 @@ def show_settings():
         col_p1, col_p2 = st.columns([5, 1])
         with col_p1:
             if st.session_state.edit_mode["pass"]:
-                new_pass = st.text_input("Password Baru", type="password", placeholder="Isi hanya jika ingin ganti sandi", key="input_pass")
+                st.text_input("Password Baru", type="password", placeholder="Isi jika ingin ganti", key="input_pass")
             else:
                 st.text_input("Password", value="********", disabled=True)
         with col_p2:
@@ -58,7 +59,7 @@ def show_settings():
                 st.session_state.edit_mode["pass"] = not st.session_state.edit_mode["pass"]
                 st.rerun()
 
-    # --- BAGIAN KONFIRMASI (MUNCUL JIKA ADA EDIT) ---
+    # --- BAGIAN KONFIRMASI ---
     if any(st.session_state.edit_mode.values()):
         st.markdown("""
             <div style="background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #fbbf24; margin-top: 20px;">
@@ -73,46 +74,48 @@ def show_settings():
         with c1:
             if st.button("💾 SIMPAN PERUBAHAN", use_container_width=True):
                 if not v_key:
-                    st.error("License Key wajib diisi sebagai verifikasi!")
+                    st.error("License Key wajib diisi!")
                 else:
-                    # 2. LOGIKA FALLBACK DATA (Cegah data jadi kosong/None)
-                    final_nama = st.session_state.get('input_nama', user['nama'])
-                    final_email = st.session_state.get('input_email', user['email'])
-                    final_pass = st.session_state.get('input_pass', "")
-                    final_ref = user.get('ref') # Kunci Ref dari baris 15
+                    # AMBIL DATA SECARA AMAN DARI SESSION STATE
+                    # Jika user tidak mengaktifkan mode edit, gunakan data user asli
+                    f_nama = st.session_state.input_nama if "input_nama" in st.session_state else user['nama']
+                    f_email = st.session_state.input_email if "input_email" in st.session_state else user['email']
+                    f_pass = st.session_state.input_pass if "input_pass" in st.session_state else ""
+                    f_ref = user.get('ref') # Kunci Ref
 
-                    with st.spinner("Sinkronisasi ke Google Sheets..."):
-                        # 3. CALL SECURITY FUNCTION (Dengan Ref sebagai parameter wajib)
-                        res = verify_user(
-                            email=final_email, 
-                            password=final_pass, 
-                            key=v_key, 
-                            mode="signup", 
-                            nama=final_nama, 
-                            ref=final_ref
-                        )
-                        
-                        if res == "SUCCESS_SIGNUP":
-                            # 4. UPDATE LOCAL SESSION (Agar Sidebar Langsung Ganti Nama)
-                            st.session_state.user_data['nama'] = final_nama
-                            st.session_state.user_data['email'] = final_email
-                            # Ref tetap dijaga agar tidak hilang untuk edit berikutnya
-                            st.session_state.user_data['ref'] = final_ref 
+                    if not f_ref:
+                        st.warning("⚠️ Data Ref tidak ditemukan. Silakan Logout dan Login ulang terlebih dahulu.")
+                    else:
+                        with st.spinner("Menghubungkan ke server..."):
+                            # PANGGIL KE SECURITY
+                            res = verify_user(
+                                email=f_email, 
+                                password=f_pass, 
+                                key=v_key, 
+                                mode="signup", 
+                                nama=f_nama, 
+                                ref=f_ref
+                            )
                             
-                            st.success(f"✅ Profil {final_nama} Berhasil Diperbarui!")
-                            st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
-                            time.sleep(2)
-                            st.rerun()
-                        else:
-                            st.error("❌ Gagal Simpan. Pastikan License Key benar dan koneksi stabil.")
+                            if res == "SUCCESS_SIGNUP":
+                                # UPDATE SESSION DATA
+                                st.session_state.user_data['nama'] = f_nama
+                                st.session_state.user_data['email'] = f_email
+                                st.session_state.user_data['ref'] = f_ref 
+                                
+                                st.success(f"✅ Profil {f_nama} Berhasil Diperbarui!")
+                                # Reset mode edit
+                                st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
+                                time.sleep(2)
+                                st.rerun()
+                            else:
+                                st.error("❌ Gagal Simpan. Cek License Key Anda atau coba lagi.")
         with c2:
             if st.button("✖ BATAL", use_container_width=True):
                 st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
                 st.rerun()
 
-    # Navigasi Kembali
     st.write("---")
     if st.button("⬅️ Kembali ke Dashboard", use_container_width=True):
         st.session_state.page = "dashboard"
         st.rerun()
-        
