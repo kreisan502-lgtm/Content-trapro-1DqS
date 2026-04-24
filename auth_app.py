@@ -39,6 +39,7 @@ def show_login_screen(cookie_manager):
         if st.session_state.get('can_reset'):
             new_p = st.text_input("Password Baru", type="password", key="new_p_res")
             if st.button("UPDATE PASSWORD", use_container_width=True):
+                # Update password menggunakan mode signup
                 if verify_user(f_email, new_p, key=f_key, mode="signup") == "SUCCESS_SIGNUP":
                     st.success("Sandi diperbarui!"); time.sleep(1)
                     st.session_state.can_reset = False
@@ -59,21 +60,20 @@ def show_login_screen(cookie_manager):
         if st.button("MASUK", use_container_width=True):
             res = verify_user(e_log, p_log, mode="login")
             if isinstance(res, dict) and res["status"] == "SUCCESS":
+                # 1. Simpan ke Session State (Memori Sementara)
                 st.session_state.authenticated = True 
-                
-                # Masukkan data ke session state
                 st.session_state.user_data = {
                     "nama": res["nama"], 
                     "email": res["email"],
-                    "ref": res.get("ref") 
+                    "ref": res.get("ref", "") 
                 }
                 
-                # --- BAGIAN PENYIMPANAN COOKIE (TAMBAHAN UTAMA) ---
+                # 2. Simpan ke Cookie (Memori Permanen Browser)
                 expiry = datetime.date.today() + datetime.timedelta(days=30)
                 cookie_manager.set("vip_user_email", str(res["email"]), expires_at=expiry)
                 cookie_manager.set("vip_user_nama", str(res["nama"]), expires_at=expiry)
                 
-                # TITIPKAN REF KE BROWSER AGAR TAHAN REFRESH
+                # --- TAMBAHAN KRUSIAL AGAR TIDAK HILANG SAAT REFRESH ---
                 cookie_manager.set("vip_user_ref", str(res.get("ref", "")), expires_at=expiry)
                 
                 st.success(f"Selamat datang, {res['nama']}!")
@@ -107,6 +107,7 @@ def show_login_screen(cookie_manager):
             r_pass = st.text_input("Buat Password", type="password", key="new_reg_pass")
             
             if st.button("DAFTAR SEKARANG", use_container_width=True):
-                # Saat signup baru, kita gunakan r_key sebagai referensi pendaftaran
+                # Pendaftaran baru menggunakan Key sebagai referensi
                 if verify_user(inf['email'], r_pass, key=st.session_state.rk_ok, mode="signup") == "SUCCESS_SIGNUP":
-                    st.success("Registrasi Berhasil! Silakan Login."); st.balloons()
+                    st.success("Registrasi Berhasil! Silakan masuk ke Tab Login."); st.balloons()
+        
