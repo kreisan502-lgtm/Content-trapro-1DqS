@@ -1,36 +1,28 @@
 import streamlit as st
-from extra_streamlit_components import CookieManager
 import time
+from extra_streamlit_components import CookieManager
 
 # 1. WAJIB DI BARIS PERTAMA
 st.set_page_config(page_title="BizInvest VIP Suite", layout="wide")
 
 # 2. Inisialisasi Cookie Manager
-# Tambahkan 'key' yang unik agar tidak bentrok
-cookie_manager = CookieManager(key="vip_suite_auth")
+cookie_manager = CookieManager(key="main_auth_system")
 
-# 3. PROTEKSI ANTI-BLANK (Kuncinya di sini)
-# Berikan waktu jeda agar browser siap. Jika blank, Streamlit akan menunggu.
-if not cookie_manager:
-    st.info("Sedang menyiapkan sistem keamanan...")
-    st.stop()
+# PENTING: Jeda agar Cookie Manager tidak blank
+# Jika masih blank, naikkan ke 0.8 atau 1.0
+time.sleep(0.6) 
 
-# Tambahkan sedikit delay agar cookie terbaca sempurna
-time.sleep(0.4) 
-
-# 4. Inisialisasi Session State
+# 3. Inisialisasi State Awal
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 if 'user_data' not in st.session_state:
     st.session_state.user_data = None
 
-# --- 5. LOGIKA AUTO-LOGIN ---
-# Kita ambil data dari cookie browser
+# --- 4. LOGIKA PEMULIHAN SESI (ANTI RESET) ---
 saved_email = cookie_manager.get("vip_user_email")
 saved_nama = cookie_manager.get("vip_user_nama")
 saved_ref = cookie_manager.get("vip_user_ref")
 
-# Jika di session kosong (habis refresh) tapi di browser ada datanya
 if saved_email and not st.session_state.authenticated:
     st.session_state.authenticated = True
     st.session_state.user_data = {
@@ -38,28 +30,37 @@ if saved_email and not st.session_state.authenticated:
         "email": saved_email,
         "ref": saved_ref if saved_ref else ""
     }
+    # Pastikan default page adalah dashboard jika baru pulih
     if 'page' not in st.session_state:
         st.session_state.page = "dashboard"
 
-# --- 6. NAVIGASI UTAMA ---
+# --- 5. IMPORT HALAMAN (Di bawah agar tidak bentrok) ---
 from auth_app import show_login_screen
 from sidebar_app import show_sidebar
 from dashboard_app import show_main_dashboard
 from settings_app import show_settings
 
+# --- 6. NAVIGASI UTAMA ---
 if not st.session_state.authenticated:
-    # Kirim cookie_manager ke halaman login
     show_login_screen(cookie_manager)
 else:
-    # Tampilkan Sidebar
+    # Tampilkan Sidebar (Pastikan sidebar_app kamu menerima cookie_manager)
     show_sidebar(cookie_manager)
     
-    # Cek halaman mana yang aktif
-    current_page = st.session_state.get('page', 'dashboard')
+    # Ambil halaman aktif dari session
+    page = st.session_state.get('page', 'dashboard')
     
-    if current_page == "dashboard":
+    # Logika Percabangan Menu agar tidak Blank
+    if page == "dashboard":
         show_main_dashboard()
-    elif current_page == "settings":
+    elif page == "settings":
         show_settings()
-    # Tambahkan halaman lain jika ada...
-    
+    elif page == "investasi":
+        # Import lokal di dalam fungsi agar tidak berat di awal
+        from investasi import show_investasi
+        show_investasi()
+    elif page == "hpp":
+        # Import lokal untuk kalkulator HPP
+        from kalkulator import show_hpp
+        show_hpp()
+        
