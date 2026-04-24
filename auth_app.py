@@ -2,9 +2,10 @@ import streamlit as st
 import time
 import datetime
 from security import verify_user, get_key_info
+from config import SCRIPT_URL, LINK_ORDER # Import SCRIPT_URL dan LINK_ORDER
 
 def show_login_screen(cookie_manager):
-    # CSS kustom (Gambar 3)
+    # CSS kustom (Tetap sama)
     st.markdown("""
         <style>
             div.stButton > button#lupa_sandi {
@@ -17,7 +18,7 @@ def show_login_screen(cookie_manager):
 
     if 'auth_view' not in st.session_state: st.session_state.auth_view = "login_page"
     
-    # --- LAYAR RESET PASSWORD ---
+    # --- LAYAR RESET PASSWORD (Tetap Sama) ---
     if st.session_state.auth_view == "reset_page":
         st.markdown("### 🛠️ Pemulihan Akun")
         f_email = st.text_input("Email Pembelian", key="f_em")
@@ -44,7 +45,7 @@ def show_login_screen(cookie_manager):
                     st.session_state.auth_view = "login_page"; st.rerun()
         return
 
-    # --- TAB NORMAL ---
+    # --- TAB UTAMA ---
     t1, t2 = st.tabs(["🔐 LOGIN", "📝 DAFTAR"])
 
     with t1:
@@ -59,9 +60,12 @@ def show_login_screen(cookie_manager):
             res = verify_user(e_log, p_log, mode="login")
             if isinstance(res, dict) and res["status"] == "SUCCESS":
                 st.session_state.authenticated = True 
-                st.session_state.user_data = {"nama": res["nama"], "email": res["email"]}
+                st.session_state.user_data = {
+                    "nama": res["nama"], 
+                    "email": res["email"],
+                    "ref": res.get("ref") 
+                }
                 
-                # SIMPAN KE COOKIE (Stay Logon)
                 expiry = datetime.date.today() + datetime.timedelta(days=30)
                 cookie_manager.set("vip_user_email", str(res["email"]), expires_at=expiry)
                 cookie_manager.set("vip_user_nama", str(res["nama"]), expires_at=expiry)
@@ -73,12 +77,12 @@ def show_login_screen(cookie_manager):
                 st.error("Gagal Login. Periksa Email/Password.")
 
     with t2:
-        # Kotak Notifikasi Biru (Gambar 2)
-        st.markdown("""
+        # Link Klaim otomatis mengambil dari SCRIPT_URL
+        st.markdown(f"""
             <div style="background-color: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px; border: 1px solid #bee5eb; margin-bottom: 20px;">
                 <span style="font-size: 18px;">💡</span> <b>Panduan Pendaftaran:</b><br>
-                1. Belum punya License Key? <a href="https://lynk.id/nore30" style="color: #0c5460; font-weight: bold;">ORDER DI SINI</a>.<br>
-                2. Sudah bayar tapi belum klaim? <a href="https://script.google.com/macros/s/AKfycbxohqgxxasTpUpdgPPzu2TLrftc6JYdQ51u51CsMt6-TLAjXhIHTNKHB4RHHtW2_6fR/exec" style="color: #0c5460; font-weight: bold;">KLAIM DI SINI</a>.
+                1. Belum punya License Key? <a href="{LINK_ORDER}" style="color: #0c5460; font-weight: bold;" target="_blank">ORDER DI SINI</a>.<br>
+                2. Sudah bayar tapi belum klaim? <a href="{SCRIPT_URL}" style="color: #0c5460; font-weight: bold;" target="_blank">KLAIM DI SINI</a>.
             </div>
         """, unsafe_allow_html=True)
         
@@ -96,6 +100,9 @@ def show_login_screen(cookie_manager):
             st.text_input("Nama", value=inf['nama'], disabled=True)
             st.text_input("Email Pembelian", value=inf['email'], disabled=True)
             r_pass = st.text_input("Buat Password", type="password", key="new_reg_pass")
+            
             if st.button("DAFTAR SEKARANG", use_container_width=True):
+                # Pada signup baru, ref masih None karena dicari berdasarkan Key
                 if verify_user(inf['email'], r_pass, key=st.session_state.rk_ok, mode="signup") == "SUCCESS_SIGNUP":
-                    st.success("Registrasi Berhasil!"); st.balloons()
+                    st.success("Registrasi Berhasil! Silakan Login."); st.balloons()
+                    
