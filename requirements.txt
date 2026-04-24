@@ -5,3 +5,4 @@ plotly
 pandas_ta
 requests
 extra-streamlit-components
+streamlit-cookies-manager
