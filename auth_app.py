@@ -5,7 +5,7 @@ from security import verify_user, get_key_info
 from config import SCRIPT_URL, LINK_ORDER 
 
 def show_login_screen(cookie_manager):
-    # CSS kustom
+    # CSS kustom untuk tombol lupa sandi
     st.markdown("""
         <style>
             div.stButton > button#lupa_sandi {
@@ -16,7 +16,8 @@ def show_login_screen(cookie_manager):
         </style>
     """, unsafe_allow_html=True)
 
-    if 'auth_view' not in st.session_state: st.session_state.auth_view = "login_page"
+    if 'auth_view' not in st.session_state: 
+        st.session_state.auth_view = "login_page"
     
     # --- LAYAR RESET PASSWORD ---
     if st.session_state.auth_view == "reset_page":
@@ -26,24 +27,27 @@ def show_login_screen(cookie_manager):
         
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("VERIFIKASI DATA", use_container_width=True):
+            # Key unik untuk tombol verifikasi reset
+            if st.button("VERIFIKASI DATA", use_container_width=True, key="btn_verify_reset"):
                 info = get_key_info(f_key)
                 if info and str(info['email']).strip() == str(f_email).strip():
                     st.session_state.can_reset = True
                     st.success("Data diverifikasi!")
-                else: st.error("Data tidak cocok.")
+                else: 
+                    st.error("Data tidak cocok.")
         with c2:
-            if st.button("KEMBALI", use_container_width=True):
-                st.session_state.auth_view = "login_page"; st.rerun()
+            if st.button("KEMBALI", use_container_width=True, key="btn_back_to_login"):
+                st.session_state.auth_view = "login_page"
+                st.rerun()
 
         if st.session_state.get('can_reset'):
             new_p = st.text_input("Password Baru", type="password", key="new_p_res")
-            if st.button("UPDATE PASSWORD", use_container_width=True):
-                # Update password menggunakan mode signup
+            if st.button("UPDATE PASSWORD", use_container_width=True, key="btn_final_reset"):
                 if verify_user(f_email, new_p, key=f_key, mode="signup") == "SUCCESS_SIGNUP":
                     st.success("Sandi diperbarui!"); time.sleep(1)
                     st.session_state.can_reset = False
-                    st.session_state.auth_view = "login_page"; st.rerun()
+                    st.session_state.auth_view = "login_page"
+                    st.rerun()
         return
 
     # --- TAB UTAMA ---
@@ -57,33 +61,33 @@ def show_login_screen(cookie_manager):
             st.session_state.auth_view = "reset_page"
             st.rerun()
 
-                # Di dalam file Auth app, bagian tombol MASUK:
+        # FIXED: Menggunakan Key Unik "btn_login_utama" agar tidak bentrok
         if st.button("MASUK", use_container_width=True, key="btn_login_utama"):
-            res = verify_user(e_log, p_log, mode="login")
-            # ... sisa kodingan kamu ...
-
-            if isinstance(res, dict) and res["status"] == "SUCCESS":
-                # 1. Simpan ke Session State (Memori Sementara)
-                st.session_state.authenticated = True 
-                st.session_state.user_data = {
-                    "nama": res["nama"], 
-                    "email": res["email"],
-                    "ref": res.get("ref", "") 
-                }
-                
-                # 2. Simpan ke Cookie (Memori Permanen Browser)
-                expiry = datetime.date.today() + datetime.timedelta(days=30)
-                cookie_manager.set("vip_user_email", str(res["email"]), expires_at=expiry)
-                cookie_manager.set("vip_user_nama", str(res["nama"]), expires_at=expiry)
-                
-                # --- TAMBAHAN KRUSIAL AGAR TIDAK HILANG SAAT REFRESH ---
-                cookie_manager.set("vip_user_ref", str(res.get("ref", "")), expires_at=expiry)
-                
-                st.success(f"Selamat datang, {res['nama']}!")
-                time.sleep(1.0)
-                st.rerun()
+            if not e_log or not p_log:
+                st.warning("Email dan Password harus diisi!")
             else:
-                st.error("Gagal Login. Periksa Email/Password.")
+                res = verify_user(e_log, p_log, mode="login")
+                
+                if isinstance(res, dict) and res["status"] == "SUCCESS":
+                    # 1. Simpan ke Session State
+                    st.session_state.authenticated = True 
+                    st.session_state.user_data = {
+                        "nama": res["nama"], 
+                        "email": res["email"],
+                        "ref": res.get("ref", "") 
+                    }
+                    
+                    # 2. Simpan ke Cookie (30 Hari)
+                    expiry = datetime.date.today() + datetime.timedelta(days=30)
+                    cookie_manager.set("vip_user_email", str(res["email"]), expires_at=expiry)
+                    cookie_manager.set("vip_user_nama", str(res["nama"]), expires_at=expiry)
+                    cookie_manager.set("vip_user_ref", str(res.get("ref", "")), expires_at=expiry)
+                    
+                    st.success(f"Selamat datang, {res['nama']}!")
+                    time.sleep(1.0) # Jeda agar cookie sempat tertulis ke browser
+                    st.rerun()
+                else:
+                    st.error("Gagal Login. Periksa Email/Password.")
 
     with t2:
         st.markdown(f"""
@@ -95,22 +99,23 @@ def show_login_screen(cookie_manager):
         """, unsafe_allow_html=True)
         
         r_key = st.text_input("License Key", placeholder="BIZ-XXXXXXX", key="rk")
-        if st.button("VALIDASI KEY", use_container_width=True):
+        
+        if st.button("VALIDASI KEY", use_container_width=True, key="btn_val_key"):
             info = get_key_info(r_key)
             if info and info['can_register']:
                 st.session_state.reg_info = info
                 st.session_state.rk_ok = r_key
                 st.success("Key Valid!")
-            else: st.error("Key sudah terdaftar atau tidak aktif.")
+            else: 
+                st.error("Key sudah terdaftar atau tidak aktif.")
 
         if st.session_state.get('rk_ok'):
             inf = st.session_state.reg_info
-            st.text_input("Nama", value=inf['nama'], disabled=True)
-            st.text_input("Email Pembelian", value=inf['email'], disabled=True)
+            st.text_input("Nama", value=inf['nama'], disabled=True, key="reg_nama_fix")
+            st.text_input("Email Pembelian", value=inf['email'], disabled=True, key="reg_email_fix")
             r_pass = st.text_input("Buat Password", type="password", key="new_reg_pass")
             
-            if st.button("DAFTAR SEKARANG", use_container_width=True):
-                # Pendaftaran baru menggunakan Key sebagai referensi
+            if st.button("DAFTAR SEKARANG", use_container_width=True, key="btn_execute_reg"):
                 if verify_user(inf['email'], r_pass, key=st.session_state.rk_ok, mode="signup") == "SUCCESS_SIGNUP":
                     st.success("Registrasi Berhasil! Silakan masuk ke Tab Login."); st.balloons()
         
