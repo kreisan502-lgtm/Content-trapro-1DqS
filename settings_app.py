@@ -76,12 +76,15 @@ def show_settings():
             v_key = st.text_input("License Key", type="password", placeholder="BIZ-XXXXXXX", key="confirm_key")
             
             # Tombol Aksi Sejajar
+                        # --- BAGIAN TOMBOL AKSI (DIUBAH KEY-NYA) ---
             act_col1, act_col2 = st.columns(2)
             with act_col1:
-                if st.button("💾 SIMPAN", use_container_width=True):
+                # Tambahkan key="btn_simpan_profil"
+                if st.button("💾 SIMPAN", use_container_width=True, key="btn_simpan_profil"):
                     if not v_key:
                         st.error("Wajib diisi!")
                     else:
+                        # Mengambil data dari session state widget dengan aman
                         f_nama = st.session_state.get('input_nama', user['nama'])
                         f_email = st.session_state.get('input_email', user['email'])
                         f_pass = st.session_state.get('input_pass', "")
@@ -93,11 +96,13 @@ def show_settings():
                                 st.session_state.user_data.update({"nama": f_nama, "email": f_email, "ref": f_ref})
                                 st.success("Update Berhasil!")
                                 st.session_state.edit_mode = {k: False for k in st.session_state.edit_mode}
-                                time.sleep(1.5); st.rerun()
+                                time.sleep(1.5)
+                                st.rerun()
                             else:
                                 st.error("Gagal simpan!")
             with act_col2:
-                if st.button("✖ BATAL", use_container_width=True):
+                # Tambahkan key="btn_batal_profil"
+                if st.button("✖ BATAL", use_container_width=True, key="btn_batal_profil"):
                     st.session_state.edit_mode = {k: False for k in st.session_state.edit_mode}
                     st.rerun()
 
