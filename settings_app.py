@@ -6,24 +6,29 @@ def show_settings():
     st.markdown("""
         <div style="margin-top: -50px;">
             <h1 style="color: #fbbf24; font-size: 2rem; font-weight: 800;">⚙️ Profil VIP</h1>
-            <p style="color: #94a3b8; font-size: 0.9rem;">Kelola identitas dan keamanan akun Anda secara real-time.</p>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Kelola identitas dan keamanan akun VIP Anda.</p>
         </div>
         <hr style="border: 0.5px solid #334155; margin-bottom: 30px;">
     """, unsafe_allow_html=True)
 
-    # 1. AMBIL DATA USER (Pastikan 'ref' ada)
+    # 1. AMBIL DATA USER
     user = st.session_state.get('user_data', {"nama": "Member", "email": "", "ref": ""})
     
     if 'edit_mode' not in st.session_state:
         st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
 
-    # Container Input Profil
+    # Container Utama
     with st.container(border=True):
+        
+        # --- SEKSI ID VIP (READ ONLY) ---
+        # Ini untuk menampilkan kode Reff dari kolom A agar user tahu ID mereka
+        st.text_input("🆔 ID VIP (Order ID)", value=user.get('ref', 'Tidak Terdeteksi'), disabled=True, help="ID unik akun Anda untuk sinkronisasi cloud.")
+        st.write("") # Spacer
+
         # --- SEKSI NAMA ---
         col_n1, col_n2 = st.columns([5, 1])
         with col_n1:
             if st.session_state.edit_mode["nama"]:
-                # Gunakan value tetap dari session agar tidak kosong saat rerun
                 st.text_input("Ubah Nama Lengkap", value=user['nama'], key="input_nama")
             else:
                 st.text_input("Nama Lengkap", value=user['nama'], disabled=True)
@@ -50,7 +55,7 @@ def show_settings():
         col_p1, col_p2 = st.columns([5, 1])
         with col_p1:
             if st.session_state.edit_mode["pass"]:
-                st.text_input("Password Baru", type="password", placeholder="Isi jika ingin ganti", key="input_pass")
+                st.text_input("Password Baru", type="password", placeholder="Isi hanya jika ingin ganti", key="input_pass")
             else:
                 st.text_input("Password", value="********", disabled=True)
         with col_p2:
@@ -64,7 +69,7 @@ def show_settings():
         st.markdown("""
             <div style="background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #fbbf24; margin-top: 20px;">
                 <p style="color: #fbbf24; margin-bottom: 10px; font-weight: bold;">🔐 Konfirmasi Keamanan</p>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: -10px;">Gunakan License Key asli Anda untuk menyimpan perubahan.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: -10px;">Masukkan License Key untuk memverifikasi perubahan.</p>
             </div>
         """, unsafe_allow_html=True)
         
@@ -76,18 +81,16 @@ def show_settings():
                 if not v_key:
                     st.error("License Key wajib diisi!")
                 else:
-                    # AMBIL DATA SECARA AMAN DARI SESSION STATE
-                    # Jika user tidak mengaktifkan mode edit, gunakan data user asli
+                    # Ambil data dari state atau session
                     f_nama = st.session_state.input_nama if "input_nama" in st.session_state else user['nama']
                     f_email = st.session_state.input_email if "input_email" in st.session_state else user['email']
                     f_pass = st.session_state.input_pass if "input_pass" in st.session_state else ""
-                    f_ref = user.get('ref') # Kunci Ref
+                    f_ref = user.get('ref') 
 
-                    if not f_ref:
-                        st.warning("⚠️ Data Ref tidak ditemukan. Silakan Logout dan Login ulang terlebih dahulu.")
+                    if not f_ref or f_ref == "":
+                        st.error("❌ ID VIP tidak ditemukan. Silakan Logout dan Login ulang agar sistem dapat mengenali akun Anda.")
                     else:
-                        with st.spinner("Menghubungkan ke server..."):
-                            # PANGGIL KE SECURITY
+                        with st.spinner("Sinkronisasi ke Google Sheets..."):
                             res = verify_user(
                                 email=f_email, 
                                 password=f_pass, 
@@ -98,18 +101,13 @@ def show_settings():
                             )
                             
                             if res == "SUCCESS_SIGNUP":
-                                # UPDATE SESSION DATA
-                                st.session_state.user_data['nama'] = f_nama
-                                st.session_state.user_data['email'] = f_email
-                                st.session_state.user_data['ref'] = f_ref 
-                                
-                                st.success(f"✅ Profil {f_nama} Berhasil Diperbarui!")
-                                # Reset mode edit
+                                st.session_state.user_data.update({"nama": f_nama, "email": f_email, "ref": f_ref})
+                                st.success(f"✅ Berhasil diperbarui!")
                                 st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
                                 time.sleep(2)
                                 st.rerun()
                             else:
-                                st.error("❌ Gagal Simpan. Cek License Key Anda atau coba lagi.")
+                                st.error("❌ Gagal Simpan. Pastikan License Key benar.")
         with c2:
             if st.button("✖ BATAL", use_container_width=True):
                 st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
