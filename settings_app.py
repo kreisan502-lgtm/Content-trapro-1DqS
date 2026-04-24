@@ -11,8 +11,8 @@ def show_settings():
         <hr style="border: 0.5px solid #334155; margin-bottom: 30px;">
     """, unsafe_allow_html=True)
 
-    # Ambil data user saat ini
-    user = st.session_state.get('user_data', {"nama": "Member", "email": ""})
+    # Ambil data user saat ini (Termasuk Ref yang didapat saat Login)
+    user = st.session_state.get('user_data', {"nama": "Member", "email": "", "ref": ""})
     
     # Inisialisasi state agar data tidak hilang saat refresh
     if 'edit_mode' not in st.session_state:
@@ -75,25 +75,36 @@ def show_settings():
                 if not v_key:
                     st.error("License Key wajib diisi!")
                 else:
-                    # LOGIKA PENTING: Jika tidak diubah, gunakan data lama (User Data)
+                    # Ambil data baru dari input, jika tidak diedit pakai data lama dari session
                     final_nama = st.session_state.get('input_nama', user['nama'])
                     final_email = st.session_state.get('input_email', user['email'])
-                    # Untuk password, jika tidak diubah kirim string kosong (tergantung security.py anda)
                     final_pass = st.session_state.get('input_pass', "")
+                    final_ref = user.get('ref') # AMBIL KODE REF SEBAGAI KUNCI UTAMA
 
-                    with st.spinner("Menyimpan..."):
-                        # Memanggil fungsi update ke database
-                        res = verify_user(final_email, final_pass, key=v_key, mode="signup")
+                    with st.spinner("Sinkronisasi data ke Cloud..."):
+                        # UPDATE: Menambahkan parameter nama=final_nama dan ref=final_ref
+                        res = verify_user(
+                            email=final_email, 
+                            password=final_pass, 
+                            key=v_key, 
+                            mode="signup", 
+                            nama=final_nama, 
+                            ref=final_ref
+                        )
                         
                         if res == "SUCCESS_SIGNUP":
-                            st.success("Perubahan Berhasil Disimpan!")
-                            # Update Session State agar UI langsung berubah
-                            st.session_state.user_data = {"nama": final_nama, "email": final_email}
+                            st.success(f"Berhasil! Profil {final_nama} telah diperbarui.")
+                            # Update Session State agar Sidebar & UI langsung sinkron
+                            st.session_state.user_data['nama'] = final_nama
+                            st.session_state.user_data['email'] = final_email
+                            st.session_state.user_data['ref'] = final_ref
+                            
+                            # Reset mode edit
                             st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
                             time.sleep(2)
                             st.rerun()
                         else:
-                            st.error("Gagal. Pastikan License Key Anda benar.")
+                            st.error("Gagal simpan. Periksa License Key Anda.")
         with c2:
             if st.button("✖ BATAL", use_container_width=True):
                 st.session_state.edit_mode = {"nama": False, "email": False, "pass": False}
@@ -102,4 +113,4 @@ def show_settings():
     if st.button("⬅️ Kembali ke Dashboard", use_container_width=True):
         st.session_state.page = "dashboard"
         st.rerun()
-        
+                            
