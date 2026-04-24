@@ -4,4 +4,4 @@
 CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyzO1OA-Cq8Tabx9KODOX9VWNFTZ0Gluuja8qztT30GR7c2FbPoJLBs_F1h8KRtRYnW6SRbKM1jpu1/pub?gid=0&single=true&output=csv"
 
 # URL Deployment dari Google Apps Script
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxohqgxxasTpUpdgPPzu2TLrftc6JYdQ51u51CsMt6-TLAjXhIHTNKHB4RHHtW2_6fR/exec"
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWtwBOht7__Na97Bf7HCQq3B8BFmI9stxS7zAoKL957wLsd1oBOCgY6IGdbxyXHNG3/exec"
