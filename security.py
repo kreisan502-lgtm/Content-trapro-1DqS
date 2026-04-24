@@ -25,39 +25,44 @@ def get_key_info(key):
     except Exception:
         return None
 
+# PERBAIKAN: Menambahkan parameter ref=None
 def verify_user(email, password, key=None, mode="login", nama=None, ref=None):
     """
-    Fungsi Autentikasi dengan dukungan Kode Ref (Kolom A)
+    Fungsi Utama Autentikasi dengan Dukungan Kunci Reff (Kolom A)
     """
     try:
         df = pd.read_csv(f"{CSV_URL}&t={int(time.time())}")
         df.columns = df.columns.str.strip()
         
         if mode == "login":
-            # Mencari kecocokan Email & Password
             match = df[(df['Email'].astype(str) == str(email)) & (df['password'].astype(str) == str(password))]
             if not match.empty:
                 return {
                     "status": "SUCCESS", 
                     "nama": match.iloc[0]['Nama'], 
                     "email": str(match.iloc[0]['Email']),
-                    "ref": str(match.iloc[0].iloc[0]) # AMBIL KOLOM A (Ref) SEBAGAI KUNCI
+                    "ref": str(match.iloc[0].iloc[0]) # Mengambil Kolom A (Reff)
                 }
             return {"status": "FAILED"}
         
         elif mode == "signup":
-            # Parameter dikirim ke Apps Script
+            # Menyiapkan parameter untuk dikirim ke Google Apps Script
             params = {
                 "action": "signup", 
-                "ref": ref,       # Kirim kunci baris
+                "ref": ref,       # KUNCI UTAMA: Mengirim Ref agar tidak salah baris
                 "key": key, 
-                "pass": password, 
+                "pass": password, # Kosong jika tidak ganti sandi
                 "email": email,   
                 "nama": nama      
             }
+            
             res = requests.get(SCRIPT_URL, params=params, timeout=15)
-            return "SUCCESS_SIGNUP" if "SUCCESS" in res.text.upper() else "FAILED"
+            
+            if "SUCCESS" in res.text.upper():
+                return "SUCCESS_SIGNUP"
+            else:
+                return "FAILED"
                 
     except Exception as e:
         return f"ERROR: {str(e)}"
-        
+                    
