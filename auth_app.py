@@ -77,7 +77,7 @@ def show_login_screen(cookie_manager):
                 cookie_manager.set("vip_user_ref", str(res.get("ref", "")), expires_at=expiry)
                 
                 st.success(f"Selamat datang, {res['nama']}!")
-                time.sleep(0.5)
+                time.sleep(1.0)
                 st.rerun()
             else:
                 st.error("Gagal Login. Periksa Email/Password.")
