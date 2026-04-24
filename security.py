@@ -27,49 +27,36 @@ def get_key_info(key):
     except Exception:
         return None
 
+# Ganti fungsi verify_user di security.py kamu menjadi ini:
 def verify_user(email, password, key=None, mode="login", nama=None, ref=None):
-    """
-    Fungsi Utama Autentikasi:
-    - mode 'login': Verifikasi & Mengambil Kode Ref akun.
-    - mode 'signup': Update Profil berdasarkan Kunci Ref.
-    """
     try:
-        # Load Data dari CSV Google Sheets
         df = pd.read_csv(f"{CSV_URL}&t={int(time.time())}")
         df.columns = df.columns.str.strip()
         
         if mode == "login":
-            # Mencari kecocokan Email & Password
             match = df[(df['Email'].astype(str) == str(email)) & (df['password'].astype(str) == str(password))]
             if not match.empty:
-                # PENTING: Mengambil Ref (Kolom A) untuk digunakan sebagai kunci edit profil
                 return {
                     "status": "SUCCESS", 
                     "nama": match.iloc[0]['Nama'], 
                     "email": str(match.iloc[0]['Email']),
-                    "ref": str(match.iloc[0].iloc[0]) # Kolom index 0 (Ref)
+                    "ref": str(match.iloc[0].iloc[0]) # Mengambil Kolom A (Ref) saat login
                 }
             return {"status": "FAILED"}
         
         elif mode == "signup":
-            # Menyiapkan parameter untuk dikirim ke Google Apps Script
             params = {
                 "action": "signup", 
-                "ref": ref,       # KUNCI UTAMA: Menggunakan Ref agar tidak salah baris
+                "ref": ref,       # INI KUNCINYA: Mengirimkan Ref ke Apps Script
                 "key": key, 
-                "pass": password, # Kosong jika tidak ganti sandi
+                "pass": password, 
                 "email": email,   
                 "nama": nama      
             }
-            
-            # Request ke Web App Google Apps Script
             res = requests.get(SCRIPT_URL, params=params, timeout=15)
-            
-            # Jika respon dari Apps Script mengandung kata "SUCCESS"
             if "SUCCESS" in res.text.upper():
                 return "SUCCESS_SIGNUP"
             else:
                 return "FAILED"
-                
     except Exception as e:
         return f"ERROR: {str(e)}"
